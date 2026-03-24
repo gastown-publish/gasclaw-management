@@ -19,6 +19,7 @@ This repo tracks the full infrastructure setup, configuration, testing, and ongo
 │  minimax.villamarket.ai     → Website (S3 + CloudFront)        │
 │  app.minimax.villamarket.ai → DeerFlow Chat UI (CloudFront)    │
 │  api.minimax.villamarket.ai → API (CloudFront → LiteLLM)       │
+│  status.gpu.villamarket.ai  → Monitoring Dashboard             │
 └───────────────────────────────┬─────────────────────────────────┘
                                 │
 ┌───────────────────────────────▼─────────────────────────────────┐
@@ -46,6 +47,28 @@ This repo tracks the full infrastructure setup, configuration, testing, and ongo
 | [gastown-publish/gasclaw](https://github.com/gastown-publish/gasclaw) | gasclaw-dev | @gasclaw_master_bot | main, crew-1, crew-2 | CI green ✅ |
 | [gastown-publish/minimax](https://github.com/gastown-publish/minimax) | gasclaw-minimax | @minimax_gastown_publish_bot | main, coordinator, developer, devops, tester, reviewer | CI green ✅ |
 | [gastown-publish/gasskill](https://github.com/gastown-publish/gasskill) | gasclaw-gasskill | @gasskill_agent_bot | main, skill-dev, skill-tester | Active |
+
+## Monitoring Dashboard
+
+Real-time monitoring at **https://status.gpu.villamarket.ai**
+
+```bash
+# Deploy/Update dashboard
+cd dashboard && ./deploy.sh
+
+# View locally
+cd dashboard && python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt && python app.py
+# Open http://localhost:5000
+```
+
+Dashboard shows:
+- Container status (Docker)
+- Gateway health (OpenClaw)
+- Agent activity
+- MiniMax service metrics (tokens/sec, parallel sessions)
+- GPU status (8x H100)
+- Beads issues
 
 ## Quick Reference
 
@@ -93,6 +116,11 @@ gasclaw-management/
 │   ├── test_all_bots.py         # Telegram integration tests (Telethon)
 │   ├── test_telegram_integration.py  # Per-bot detailed tests
 │   └── verify-all.sh            # Full stack verification script
+├── dashboard/                   # Monitoring dashboard (status.gpu.villamarket.ai)
+│   ├── app.py                   # Flask backend API
+│   ├── static/                  # Frontend assets
+│   ├── aws/                     # CloudFront deployment
+│   └── deploy.sh                # Deployment script
 ├── scripts/
 │   ├── restart-gateways.sh      # Restart all OpenClaw gateways
 │   ├── activate-agents.sh       # Activate all agent sessions

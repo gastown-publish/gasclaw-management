@@ -1,0 +1,43 @@
+[Unit]
+Description=Gasclaw Management Dashboard
+Documentation=https://github.com/gastown-publish/gasclaw-management
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=nic
+WorkingDirectory=/home/nic/gasclaw-workspace/gasclaw-management/dashboard
+
+# Environment
+Environment=PYTHONUNBUFFERED=1
+Environment=FLASK_ENV=production
+Environment=DASHBOARD_PORT=5000
+
+# Run the dashboard using gunicorn
+ExecStart=/home/nic/gasclaw-workspace/gasclaw-management/dashboard/.venv/bin/gunicorn \
+    --bind 0.0.0.0:5000 \
+    --workers 2 \
+    --threads 4 \
+    --timeout 30 \
+    --access-logfile - \
+    --error-logfile - \
+    --capture-output \
+    --enable-stdio-inheritance \
+    app:app
+
+# Restart policy
+Restart=always
+RestartSec=5
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/nic/gasclaw-workspace/gasclaw-management/dashboard
+
+# Allow Docker access (needed for container monitoring)
+ExecStartPre=-/usr/bin/docker ps > /dev/null 2>&1
+
+[Install]
+WantedBy=multi-user.target

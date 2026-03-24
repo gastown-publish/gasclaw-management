@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "gasclaw_management",
+  "project_id": "e60ae5d1-59f8-44ac-8cad-94d8260da78d"
+}

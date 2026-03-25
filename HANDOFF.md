@@ -114,23 +114,35 @@ gashub-mcp                    # stdio MCP server with 5 tools
 4. **Tailscale funnel** — foreground process dies: `tailscale funnel 4000`
 5. **Sub-agent auth** — copy `models.json` from main agent to all sub-agents
 
+## Completed (this session — 2026-03-25)
+
+1. **Context Hub fork** — `gastown-publish/context-hub` (7 commits ahead of upstream, 230/231 tests pass)
+2. **CLI renamed to `gashub`** — `gashub search`, `gashub get`, `gashub annotate`, `gashub-mcp` (5 MCP tools)
+3. **Installed in all 4 containers** — `/opt/gashub/cli/` → `/usr/local/bin/gashub`
+4. **MCP configured in Claude Code** — `mcpServers.gashub` in all container settings
+5. **gascontext container designed** — port 18797, docs, env example, scripts updated
+6. **All 4 bots verified responding** — health check messages sent/received in all topics
+7. **Telegram group clean** — only 4 bot topics + General, no stale topics
+8. **151 beads closed** out of 164 total
+
 ## Next Steps
 
 ### Immediate (P0-P1)
 
-1. **Fix the 1 remaining test failure** — non-mention test timing issue (stale spawn reply)
-2. **Fix minimax security issues** — gastown-publish/minimax #15 (hardcoded DB password), #16 (command injection), #17 (insecure CORS)
+1. **Fix minimax security issues** — gastown-publish/minimax #15 (hardcoded DB password), #16 (command injection), #17 (insecure CORS)
+2. **Bootstrap improvements** — write AGENTS.md, activate agent sessions, fix model config on startup
 3. **Auto-restart services** — Tailscale funnel, OpenClaw gateways, LiteLLM need supervisor/systemd
-4. **Bootstrap improvements** — write AGENTS.md, activate agent sessions, fix model config on startup (issues #340, #341)
+4. **Deploy gascontext container** — register @gascontext_bot, create Telegram topic, build + start container
 
 ### Medium (P2)
 
-5. **Telegram integration tests in CI** — move `/tmp/test_all_bots.py` to repo, run in GitHub Actions
-6. **Auto-spawn thread-bound agents** — `/agents` gateway command shows (none) after tasks complete (#343)
+5. **Telegram integration tests in CI** — move test scripts to repo, run in GitHub Actions
+6. **Auto-spawn thread-bound agents** — `/agents` gateway command shows (none) after tasks complete
 7. **Periodic health reporting** — cron on mgmt container to check all services and report to management topic
-8. **Monitor Telegram for errors** — Telethon listener that triggers debugging on error messages
+8. **Rebuild Docker images** — Go 1.26.1, gt v0.12.1 update needed
+9. **Publish @gastown/gashub to npm** — make `npm install -g @gastown/gashub` work
 
-### Beads Issues (10 tracked)
+### Beads Issues (13 open)
 
 ```bash
 cd /home/nic/gasclaw-workspace/gasclaw-management && bd ready

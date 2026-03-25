@@ -19,20 +19,9 @@ Parameters:
   
   CertificateArn:
     Type: String
-    Description: ACM Certificate ARN for the domain
-    Default: ''
-
-Conditions:
-  HasCustomCert: !Not [!Equals [!Ref CertificateArn, '']]
+    Description: ACM Certificate ARN for the domain (must be in us-east-1)
 
 Resources:
-  # CloudFront Origin Access Identity (if needed for S3)
-  OriginAccessIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub 'OAI for ${DomainName}'
-
   # CloudFront Distribution
   DashboardDistribution:
     Type: AWS::CloudFront::Distribution
@@ -48,15 +37,14 @@ Resources:
         Origins:
           - Id: DashboardOrigin
             DomainName: !Ref OriginDomain
-            CustomOriginConfig:
-              HTTPPort: !Ref OriginPort
-              HTTPSPort: 443
-              OriginProtocolPolicy: https-only
-              OriginSSLProtocols:
-                - TLSv1.2
-            CustomHeaders:
+            OriginCustomHeaders:
               - HeaderName: X-Forwarded-Host
                 HeaderValue: !Ref DomainName
+            CustomOriginConfig:
+              HTTPPort: !Ref OriginPort
+              OriginProtocolPolicy: http-only
+              OriginReadTimeout: 30
+              OriginKeepaliveTimeout: 5
         
         DefaultCacheBehavior:
           TargetOriginId: DashboardOrigin
@@ -72,10 +60,8 @@ Resources:
           CachedMethods:
             - GET
             - HEAD
-            - OPTIONS
           CachePolicyId: !Ref DashboardCachePolicy
-          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3  # Managed AllViewer policy
-          ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03  # Managed CORS with prefetch
+          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3
           Compress: true
         
         # Cache behaviors for API (no caching)
@@ -91,6 +77,9 @@ Resources:
               - POST
               - PATCH
               - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
             CachePolicyId: !Ref APICachePolicy
             OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3
             Compress: true
@@ -98,19 +87,11 @@ Resources:
         PriceClass: PriceClass_100
         
         ViewerCertificate:
-          !If
-            - HasCustomCert
-            - AcmCertificateArn: !Ref CertificateArn
-              SslSupportMethod: sni-only
-              MinimumProtocolVersion: TLSv1.2_2021
-            - CloudFrontDefaultCertificate: true
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
         
         HttpVersion: http2and3
-        
-        # Security headers
-        Restrictions:
-          GeoRestriction:
-            RestrictionType: none
 
   # Custom Cache Policy for Dashboard (cache static assets)
   DashboardCachePolicy:
@@ -119,18 +100,14 @@ Resources:
       CachePolicyConfig:
         Name: !Sub '${AWS::StackName}-dashboard-cache'
         Comment: 'Cache policy for dashboard static assets'
-        DefaultTTL: 86400  # 1 day
-        MaxTTL: 604800     # 1 week
+        DefaultTTL: 60
+        MaxTTL: 3600
         MinTTL: 1
         ParametersInCacheKeyAndForwardedToOrigin:
           EnableAcceptEncodingGzip: true
           EnableAcceptEncodingBrotli: true
           HeadersConfig:
-            HeaderBehavior: whitelist
-            Headers:
-              - Origin
-              - Access-Control-Request-Headers
-              - Access-Control-Request-Method
+            HeaderBehavior: none
           CookiesConfig:
             CookieBehavior: none
           QueryStringsConfig:
@@ -144,35 +121,17 @@ Resources:
         Name: !Sub '${AWS::StackName}-api-cache'
         Comment: 'No-cache policy for API endpoints'
         DefaultTTL: 0
-        MaxTTL: 0
+        MaxTTL: 1
         MinTTL: 0
         ParametersInCacheKeyAndForwardedToOrigin:
           EnableAcceptEncodingGzip: true
           EnableAcceptEncodingBrotli: true
           HeadersConfig:
-            HeaderBehavior: whitelist
-            Headers:
-              - Origin
-              - Access-Control-Request-Headers
-              - Access-Control-Request-Method
-              - Authorization
+            HeaderBehavior: none
           CookiesConfig:
             CookieBehavior: none
           QueryStringsConfig:
             QueryStringBehavior: all
-
-  # Route53 Record (if using Route53)
-  DashboardDNSRecord:
-    Type: AWS::Route53::RecordSet
-    Condition: HasCustomCert
-    Properties:
-      HostedZoneName: villamarket.ai.
-      Name: !Ref DomainName
-      Type: A
-      AliasTarget:
-        DNSName: !GetAtt DashboardDistribution.DomainName
-        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID
-        EvaluateTargetHealth: false
 
 Outputs:
   DistributionId:

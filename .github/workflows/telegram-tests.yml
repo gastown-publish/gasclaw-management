@@ -1,0 +1,28 @@
+name: Telegram Integration Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_file:
+        description: 'Test file to run'
+        required: false
+        default: 'tests/test_all_bots.py'
+
+jobs:
+  telegram-test:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r tests/requirements.txt
+
+      - name: Run Telegram tests
+        env:
+          TELETHON_SESSION: ${{ secrets.TELETHON_SESSION }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+        run: python3 ${{ github.event.inputs.test_file }}

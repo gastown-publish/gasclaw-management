@@ -66,6 +66,26 @@ Each bot only responds in its own topic without @mention. In General and other t
 - **minimax**: ✅ Green
 - **gasskill**: No CI configured yet
 
+## Context Hub / Gashub Integration
+
+All 4 containers have `gashub` CLI + MCP server installed:
+
+```bash
+# CLI commands (available in all containers)
+gashub search openai          # search docs
+gashub get openai/chat --lang py  # fetch documentation
+gashub annotate <id> "note"   # add agent annotations
+
+# MCP server (configured in Claude Code settings)
+gashub-mcp                    # stdio MCP server with 5 tools
+# Tools: gashub_search, gashub_get, gashub_list, gashub_annotate, gashub_feedback
+```
+
+- **Install path**: `/opt/gashub/cli/` (symlinked to `/usr/local/bin/gashub`)
+- **MCP config**: `~/.claude-kimigas/settings.json` → `mcpServers.gashub`
+- **Repo**: [gastown-publish/context-hub](https://github.com/gastown-publish/context-hub)
+- **Registry**: 1,560+ entries (docs + skills)
+
 ## What Worked
 
 1. **OpenClaw model config**: `moonshot/kimi-k2.5` in openclaw.json + matching `models.json` per agent with `baseUrl: https://api.minimax.villamarket.ai/v1`

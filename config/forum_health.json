@@ -1,27 +1,32 @@
 {
+  "_comment": "One row per forum topic; topic_id order 918→921. Matches gastown-publish/telethon examples/forum_health.example.json.",
   "group_id": -1003810709807,
-  "ping_message": "[gasclaw-mgmt health] ping — reply OK if you see this.",
+  "ping_message": "[gasclaw-mgmt hourly] Progress check — reply in this topic with: current work, blockers, next steps (short).",
   "reply_timeout_sec": 120,
   "topics": [
     {
       "topic_id": 918,
       "bot_username": "gasclaw_master_bot",
-      "label": "gasclaw"
+      "label": "gasclaw",
+      "description": "Primary Gasclaw agent (crew-1); OpenClaw bot for this topic only."
     },
     {
       "topic_id": 919,
       "bot_username": "minimax_gastown_publish_bot",
-      "label": "minimax"
+      "label": "minimax",
+      "description": "Minimax / alternate stack; dedicated topic."
     },
     {
       "topic_id": 920,
       "bot_username": "gasskill_agent_bot",
-      "label": "gasskill"
+      "label": "gasskill",
+      "description": "Gasskill agent; dedicated topic."
     },
     {
       "topic_id": 921,
       "bot_username": "gasclaw_mgmt_bot",
       "label": "management",
+      "description": "Management / infra bot; optional until gateway token is configured.",
       "optional": true
     }
   ]

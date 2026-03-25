@@ -2,8 +2,8 @@
 # Periodic forum health: ping each Gasclaw bot in its Telegram topic (human Telethon session).
 # Requires: gastown-publish/telethon clone + .env with TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_PHONE, TELEGRAM_GROUP_ID, TELETHON_SESSION_PATH
 #
-# Cron example (every 15 minutes):
-#   */15 * * * * /home/nic/gasclaw-workspace/gasclaw-management/scripts/forum_health.sh >> /tmp/forum-health.log 2>&1
+# Cron example (every hour at :00 UTC — Telethon posts progress prompt in each topic; see docs/forum-health.md):
+#   0 * * * * /path/to/gasclaw-management/scripts/forum_health.sh >> /tmp/forum-health.log 2>&1
 
 set -euo pipefail
 

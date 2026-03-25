@@ -48,10 +48,11 @@ Run an autonomous AI agent platform with 4 Docker containers, each managing a Gi
 
 Each bot only responds in its own topic without @mention. In General and other topics, @mention is required.
 
-### Forum topic health (cron)
+### Forum topic health + hourly progress (cron)
 
-- Script: `gasclaw-management/scripts/forum_health.sh` (uses [gastown-publish/telethon](https://github.com/gastown-publish/telethon) `gastown-telethon-forum-health`).
-- Config: `config/forum_health.json` — pings topics **918–921** in-group and expects each bot to reply. Topic **921** (`@gasclaw_mgmt_bot`) is **`optional: true`** until `channels.telegram.botToken` exists in `gasclaw-mgmt` (see `scripts/apply-mgmt-telegram-token.sh`).
+- **Telethon (host):** `gasclaw-management/scripts/forum_health.sh` (uses [gastown-publish/telethon](https://github.com/gastown-publish/telethon) `gastown-telethon-forum-health`). Posts the `ping_message` in each topic and expects each bot to reply in-thread — **hourly** schedule: `0 * * * *` in user crontab (see `docs/forum-health.md`).
+- **OpenClaw cron (containers):** `scripts/install-openclaw-hourly-progress-cron.sh` registers `openclaw cron add … --cron "0 * * * *" --agent main --no-deliver` on each running container so agents get a scheduled progress nudge (complements Telethon).
+- Config: `config/forum_health.json` — topics **918–921**; default `ping_message` asks for a short **progress** report. Topic **921** (`@gasclaw_mgmt_bot`) is **`optional: true`** until `channels.telegram.botToken` exists in `gasclaw-mgmt` (see `scripts/apply-mgmt-telegram-token.sh`).
 - Docs: `docs/forum-health.md`.
 
 ### Test Results (`python3 /tmp/test_all_bots.py`)

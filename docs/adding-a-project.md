@@ -58,7 +58,7 @@ Pick the next available gateway port:
 | 18793 | gasclaw-minimax |
 | 18794 | gasclaw-dev |
 | 18796 | gasclaw-gasskill |
-| 18797 | gascontext (reserved) |
+| 18797 | gasclaw-context (context-hub) |
 | 18798 | gasclaw-mgmt |
 | **18799** | **next available** |
 
@@ -111,7 +111,7 @@ docker run -d \
 
 Or use docker-compose:
 
-Set an explicit project name if the directory is always `gasclaw` on the host (several stacks use `/home/<user>/gasclaw/`). Example: `name: gasskill` or `name: gascontext` as the first line of the file so `docker compose` does not reuse another stack’s containers.
+Set an explicit project name if the directory is always `gasclaw` on the host (several stacks use `/home/<user>/gasclaw/`). Example: `name: gasskill` or `name: gasclaw-context` as the first line of the file so `docker compose` does not reuse another stack’s containers.
 
 ```yaml
 # /home/<project-name>/gasclaw/docker-compose.yml
@@ -304,7 +304,7 @@ bd create "New project: <project-name>" -t feature -p P2 \
 | gasclaw-minimax | 18793 | @minimax_gastown_publish_bot | gastown-publish/minimax | 919 📦 |
 | gasclaw-gasskill | 18796 | @gasskill_agent_bot | gastown-publish/gasskill | 920 🔧 |
 | gasclaw-mgmt | 18798 | @gasclaw_mgmt_bot | gastown-publish/gasclaw-management | 921 📊 |
-| gascontext | 18797 | TBD | gastown-publish/context-hub | TBD 📚 |
+| gasclaw-context | 18797 | TBD | gastown-publish/context-hub | TBD 📚 |
 
 ## Common Pitfalls
 

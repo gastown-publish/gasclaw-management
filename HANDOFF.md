@@ -18,14 +18,14 @@ Run an autonomous AI agent platform with 4 Docker containers, each managing a Gi
 | gasclaw-minimax | /home/minimax/ | @minimax_gastown_publish_bot | gastown-publish/minimax | :18793 | 919 (📦 minimax) |
 | gasclaw-gasskill | /home/gasskill/ | @gasskill_agent_bot | gastown-publish/gasskill | :18796 | 920 (🔧 gasskill) |
 | gasclaw-mgmt | /home/gasclaw-mgmt/ | @gasclaw_mgmt_bot | gastown-publish/gasclaw-management | :18798 | 921 (📊 management) |
-| gascontext | /home/gascontext/ | TBD (@gascontext_bot) | gastown-publish/context-hub | :18797 | TBD (📚 context-hub) — **compose `name: gascontext`** |
+| gasclaw-context | /home/gascontext/ | TBD (@gascontext_bot) | gastown-publish/context-hub | :18797 | TBD (📚 context-hub) — **compose `name: gasclaw-context`** |
 
 ### Agent Teams
 
 - **gasclaw-dev**: main, crew-1 (Developer), crew-2 (Reviewer)
 - **gasclaw-minimax**: main, coordinator (Tech Lead), developer, devops, tester, reviewer
 - **gasclaw-gasskill**: main, skill-dev, skill-tester
-- **gascontext**: main (📚 Context Hub Overseer), content-curator (📝), mcp-tester (🔌)
+- **gasclaw-context**: main (📚 Context Hub Overseer), content-curator (📝), mcp-tester (🔌)
 - **gasclaw-mgmt**: main, infra (Infra Monitor), ci-watcher
 
 ### Infrastructure
@@ -126,7 +126,7 @@ gashub-mcp                    # stdio MCP server with 5 tools
 2. **CLI renamed to `gashub`** — `gashub search`, `gashub get`, `gashub annotate`, `gashub-mcp` (5 MCP tools)
 3. **Installed in all 4 containers** — `/opt/gashub/cli/` → `/usr/local/bin/gashub`
 4. **MCP configured in Claude Code** — `mcpServers.gashub` in all container settings
-5. **gascontext container designed** — port 18797, docs, env example, scripts updated
+5. **gasclaw-context container** — port 18797, docs, env example, scripts updated
 6. **All 4 bots verified responding** — health check messages sent/received in all topics
 7. **Telegram group clean** — only 4 bot topics + General, no stale topics
 8. **151 beads closed** out of 164 total
@@ -138,7 +138,7 @@ gashub-mcp                    # stdio MCP server with 5 tools
 1. **Fix minimax security issues** — gastown-publish/minimax #15 (hardcoded DB password), #16 (command injection), #17 (insecure CORS)
 2. **Bootstrap improvements** — write AGENTS.md, activate agent sessions, fix model config on startup
 3. **Auto-restart services** — Tailscale funnel, OpenClaw gateways, LiteLLM need supervisor/systemd
-4. **Deploy gascontext container** — register @gascontext_bot, create Telegram topic, build + start container
+4. **Deploy gasclaw-context (gastown-publish/context-hub)** — register @gascontext_bot, create Telegram topic; see [docs/gasclaw-context.md](docs/gasclaw-context.md)
 
 ### Medium (P2)
 

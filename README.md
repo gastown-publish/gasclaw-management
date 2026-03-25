@@ -37,7 +37,7 @@ This repo tracks the full infrastructure setup, configuration, testing, and ongo
 │  gasclaw-dev      │ @gasclaw_master_bot        │ gasclaw        │
 │  gasclaw-minimax  │ @minimax_gastown_pub_bot   │ minimax        │
 │  gasclaw-gasskill │ @gasskill_agent_bot        │ gasskill       │
-│  gascontext       │ TBD                        │ context-hub    │
+│  gasclaw-context  │ TBD                        │ context-hub    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -48,7 +48,7 @@ This repo tracks the full infrastructure setup, configuration, testing, and ongo
 | [gastown-publish/gasclaw](https://github.com/gastown-publish/gasclaw) | gasclaw-dev | @gasclaw_master_bot | main, crew-1, crew-2 | CI green ✅ |
 | [gastown-publish/minimax](https://github.com/gastown-publish/minimax) | gasclaw-minimax | @minimax_gastown_publish_bot | main, coordinator, developer, devops, tester, reviewer | CI green ✅ |
 | [gastown-publish/gasskill](https://github.com/gastown-publish/gasskill) | gasclaw-gasskill | @gasskill_agent_bot | main, skill-dev, skill-tester | Active |
-| [gastown-publish/context-hub](https://github.com/gastown-publish/context-hub) | gascontext | TBD | main, content-curator, mcp-tester | Planned |
+| [gastown-publish/context-hub](https://github.com/gastown-publish/context-hub) | gasclaw-context | TBD | main, content-curator, mcp-tester | Running |
 
 ## Monitoring Dashboard
 

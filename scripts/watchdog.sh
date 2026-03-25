@@ -50,7 +50,7 @@ check_tailscale_funnel() {
 check_restart_gateway gasclaw-dev 18794
 check_restart_gateway gasclaw-minimax 18793
 check_restart_gateway gasclaw-gasskill 18796
-check_restart_gateway gascontext 18797
+check_restart_gateway gasclaw-context 18797
 check_restart_gateway gasclaw-mgmt 18798
 
 # Check core services

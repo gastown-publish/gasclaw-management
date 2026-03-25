@@ -30,8 +30,8 @@ for agent in main skill-dev skill-tester; do
 done
 " 2>&1
 
-echo "=== gascontext ==="
-docker exec gascontext bash -c "
+echo "=== gasclaw-context ==="
+docker exec gasclaw-context bash -c "
 export MOONSHOT_API_KEY=$MOONSHOT_API_KEY
 for agent in main content-curator mcp-tester; do
   echo \"Activating \$agent...\"

@@ -53,15 +53,16 @@
 - Bot: @gasskill_agent_bot
 - Agents: main, skill-dev, skill-tester
 
-### gascontext
-- User: `/home/gascontext/gasclaw/`
+### gasclaw-context (context-hub)
+- User: `/home/gascontext/gasclaw/` (Unix user `gascontext`; container name **`gasclaw-context`** for `docker ps --filter name=gasclaw-`)
 - Image: `gasclaw-dev-gasclaw` (shared)
-- Compose: `/home/gascontext/gasclaw/docker-compose.yml` — **`name: gascontext`** (required: parent dir is also named `gasclaw`; without a unique Compose project name, `docker compose` can collide with `/home/gasskill/gasclaw/`)
+- Compose: `/home/gascontext/gasclaw/docker-compose.yml` — **`name: gasclaw-context`**, **`container_name: gasclaw-context`**
 - Port: 18797 (gateway)
 - Repo: gastown-publish/context-hub
 - Bot: TBD (@gascontext_bot)
 - Agents: main, content-curator, mcp-tester
 - Local clone: `/home/nic/gasclaw-workspace/context-hub`
+- Mayor / ops: [docs/gasclaw-context.md](gasclaw-context.md)
 
 ## CloudFront Distribution
 - Website: `minimax.villamarket.ai` → S3 `minimax-villamarket-website`

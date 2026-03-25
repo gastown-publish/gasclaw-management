@@ -1,8 +1,15 @@
 {
-  "_comment": "One row per forum topic; topic_id order 918→921. Matches gastown-publish/telethon examples/forum_health.example.json.",
+  "_comment": "One row per forum topic; topic_id order 918\u2192921. Ping asks for measurable hourly repo report.",
   "group_id": -1003810709807,
-  "ping_message": "[gasclaw-mgmt hourly] Progress check — reply in this topic with: current work, blockers, next steps (short).",
-  "reply_timeout_sec": 120,
+  "ping_message": "[gasclaw-mgmt hourly] Answer in THIS thread using Markdown. Replies that are only \"OK\" or one line will fail the automated check.\n\nYou must report what you actually did in the **last hour** in your assigned repo (git commits, PRs, CI). Use this template:\n\n## Past hour \u2014 repo\n- **Repo:** `gastown-publish/<repo>` (exact name)\n- **Commits:** short hash + description (or \"none\")\n- **PRs:** merged/opened with # or URL\n- **CI:** pass | fail | skipped (name workflow)\n\n## Measurable\n- Commits: n | PRs opened: n | PRs merged: n | Issues closed: n\n\n## Work done\n- Concrete bullets tied to the repo\n\n## Blockers\n- None or list\n\n## Next hour\n- Planned work\n\n## Improvement\n- One concrete thing you will do better (process, quality, or speed)\n",
+  "reply_timeout_sec": 180,
+  "min_reply_chars": 200,
+  "progress_heading_keywords": [
+    "past",
+    "repo",
+    "measurable",
+    "improvement"
+  ],
   "topics": [
     {
       "topic_id": 918,

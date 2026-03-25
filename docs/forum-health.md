@@ -3,8 +3,9 @@
 Gasclaw runs one **OpenClaw** bot per container; each bot has a **dedicated forum topic** in `gastown_publish` (`-1003810709807`). This check uses a **human Telethon session** (same mechanism as integration tests) to:
 
 1. Open each topic by id (918, 919, 920, 921).
-2. Post the configured prompt **inside that topic** (no `@mention` required in-topic) — default text asks for a **short progress report** (current work, blockers, next steps).
+2. Post the configured prompt **inside that topic** (no `@mention` required in-topic) — default text requires a **measurable hourly repo report** (`##` headings, commits/PRs/CI, counts). See [hourly-progress-template.md](hourly-progress-template.md).
 3. Wait for a reply from the **expected bot username** in the **same thread** (see [gastown-publish/telethon](https://github.com/gastown-publish/telethon) forum matching).
+4. **Validate** the reply (telethon `progress_report.py`): rejects one-word **OK**, replies that are too short, missing required sections, or no measurable repo signals.
 
 If anything fails, use the printed debug hints, then on the affected container: `openclaw channels status --probe`, `openclaw doctor`, and confirm the gateway is listening (see [HANDOFF.md](../HANDOFF.md) for ports).
 
@@ -12,7 +13,7 @@ If anything fails, use the printed debug hints, then on the affected container: 
 
 | File | Purpose |
 |------|---------|
-| [config/forum_health.json](../config/forum_health.json) | Topic ids, bot usernames, ping text, timeout |
+| [config/forum_health.json](../config/forum_health.json) | Topic ids, bot usernames, ping text, `min_reply_chars`, validation keywords |
 | [gastown-publish/telethon](https://github.com/gastown-publish/telethon) | Implementation (`gastown-telethon-forum-health`) |
 
 Edit `forum_health.json` if topics or bots change. Source of truth for topic ↔ bot mapping is [HANDOFF.md](../HANDOFF.md).

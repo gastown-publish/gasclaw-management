@@ -11,10 +11,18 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MGMT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+MSG_FILE="${OPENCLAW_PROGRESS_MESSAGE_FILE:-$MGMT_ROOT/config/openclaw_hourly_cron_message.txt}"
+if [[ -z "${OPENCLAW_PROGRESS_MESSAGE:-}" ]]; then
+  MSG=$(cat "$MSG_FILE")
+else
+  MSG="$OPENCLAW_PROGRESS_MESSAGE"
+fi
+
 CRON_EXPR="${OPENCLAW_PROGRESS_CRON:-0 * * * *}"
 JOB_NAME="${OPENCLAW_PROGRESS_JOB_NAME:-hourly-progress}"
 AGENT="${OPENCLAW_PROGRESS_AGENT:-main}"
-MSG="${OPENCLAW_PROGRESS_MESSAGE:-[Scheduled hourly] Brief progress report: current work, blockers, and next steps. Reply in this forum topic.}"
 
 CONTAINERS=(
   gasclaw-dev

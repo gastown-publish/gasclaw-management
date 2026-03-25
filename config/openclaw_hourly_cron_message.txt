@@ -1,0 +1,1 @@
+[Scheduled hourly — same bar as Telegram forum health] Reply in your forum topic with Markdown using: ## Past hour — repo (repo name, commits, PRs, CI), ## Measurable (counts), ## Work done, ## Blockers, ## Next hour, ## Improvement. One-word or "OK" replies are unacceptable; include numbers (commits/PRs/CI).

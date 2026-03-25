@@ -21,7 +21,7 @@
 - Port: 4000
 - Master key: in config file
 - DB: PostgreSQL `litellm` on localhost:5432
-- Models: minimax-m2.5, claude-sonnet-4-6, claude-opus-4-6, kimi-k2.5 (all → vLLM)
+- Models: **minimax-m2.5** (primary via LiteLLM on this host), claude-sonnet-4-6, claude-opus-4-6 (all routed per `litellm-config.yaml`)
 - **CRITICAL**: `database_url` + `disable_prisma_schema_update: true`, `prisma` on PATH
 
 ## Gasclaw Containers

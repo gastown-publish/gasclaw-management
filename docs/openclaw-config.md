@@ -2,6 +2,13 @@
 
 **ALWAYS read this before changing any openclaw.json config.**
 
+## Model policy — MiniMax on this host (not Kimi)
+
+- **Inference** for Gasclaw containers must use **MiniMax M2.5** reached through **LiteLLM** on this machine (`https://api.minimax.villamarket.ai/v1` or your LAN LiteLLM URL). Do **not** point OpenClaw at **Kimi** cloud APIs or the **`kimi-coding/k2p5`** default (that causes **401 / wrong model** failures).
+- OpenClaw still names the provider **`moonshot`** in `models.json` for historical reasons, but **`baseUrl` + API key are LiteLLM**, not Moonshot/Kimi.
+- **Canonical model id:** `minimax-m2.5` → use **`moonshot/minimax-m2.5`** in `openclaw.json`. If your LiteLLM route is still registered under the legacy id `kimi-k2.5`, that name refers to the **same MiniMax backend** via LiteLLM — prefer renaming the route to `minimax-m2.5` in LiteLLM and aligning OpenClaw.
+- After edits: `openclaw models list` — Auth **yes**; primary must **not** read `kimi-coding/k2p5`.
+
 ## Telegram Config
 
 ```json
@@ -41,7 +48,7 @@
 {
   "agents": {
     "defaults": {
-      "model": {"primary": "moonshot/kimi-k2.5"},
+      "model": {"primary": "moonshot/minimax-m2.5"},
       "subagents": {"maxChildrenPerAgent": 10}
     },
     "list": [
@@ -73,14 +80,14 @@ Plus `~/.openclaw/agents/main/agent/models.json`:
     "moonshot": {
       "baseUrl": "https://api.minimax.villamarket.ai/v1",
       "api": "openai-completions",
-      "models": [{"id": "kimi-k2.5", "name": "MiniMax M2.5"}],
+      "models": [{"id": "minimax-m2.5", "name": "MiniMax M2.5"}],
       "apiKey": "MOONSHOT_API_KEY"
     }
   }
 }
 ```
 
-LiteLLM must have matching model `kimi-k2.5`.
+LiteLLM must expose the same model id (e.g. `minimax-m2.5`) — see `litellm-config.yaml` on this host.
 
 ## /agents vs /subagents
 

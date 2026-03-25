@@ -150,7 +150,7 @@ docker exec gasclaw-<project-name> bash -c 'cat > /root/.openclaw/openclaw.json 
 {
   "agents": {
     "defaults": {
-      "model": {"primary": "moonshot/kimi-k2.5"},
+      "model": {"primary": "moonshot/minimax-m2.5"},
       "workspace": "/root/.openclaw/workspace",
       "contextPruning": {"mode": "cache-ttl", "ttl": "30m"},
       "compaction": {"mode": "safeguard"},
@@ -191,7 +191,7 @@ MODELS_JSON='{
     "moonshot": {
       "baseUrl": "https://api.minimax.villamarket.ai/v1",
       "api": "openai-completions",
-      "models": [{"id": "kimi-k2.5", "name": "Kimi K2.5", "reasoning": false, "input": ["text","image"], "cost": {"input":0,"output":0,"cacheRead":0,"cacheWrite":0}, "contextWindow": 256000, "maxTokens": 8192}],
+      "models": [{"id": "minimax-m2.5", "name": "MiniMax M2.5", "reasoning": false, "input": ["text","image"], "cost": {"input":0,"output":0,"cacheRead":0,"cacheWrite":0}, "contextWindow": 256000, "maxTokens": 8192}],
       "apiKey": "MOONSHOT_API_KEY"
     }
   }
@@ -308,7 +308,7 @@ bd create "New project: <project-name>" -t feature -p P2 \
 
 ## Common Pitfalls
 
-1. **models.json resets on gateway restart** — always verify `moonshot/kimi-k2.5` with `baseUrl: https://api.minimax.villamarket.ai/v1` after restart
+1. **models.json resets on gateway restart** — always verify `moonshot/minimax-m2.5` with `baseUrl: https://api.minimax.villamarket.ai/v1` after restart
 2. **`groupAllowFrom` takes USER IDs only** — never put group chat IDs
 3. **`commands.native: "auto"`** — don't change, breaks `/agents` command
 4. **Sub-agent auth** — copy `models.json` from main agent dir to all sub-agents after creation

@@ -31,7 +31,7 @@ Run an autonomous AI agent platform with 4 Docker containers, each managing a Gi
 ### Infrastructure
 
 - **vLLM**: port 8080, MiniMax-M2.5, 8x H100 80GB, TP4+DP2+EP8
-- **LiteLLM**: port 4000, models: minimax-m2.5, claude-sonnet-4-6, claude-opus-4-6, kimi-k2.5
+- **LiteLLM**: port 4000, models: **minimax-m2.5** (primary), claude-sonnet-4-6, claude-opus-4-6 — **no Kimi**; MiniMax is served **on this host** via LiteLLM adapter
 - **Tailscale Funnel**: `tailscale funnel 4000` (FOREGROUND process) exposes :443 → :4000
 - **CloudFront**: `api.minimax.villamarket.ai` → E2HGXLMODJQ9DP → Tailscale:443 → LiteLLM:4000
 - **Telegram Group**: -1003810709807 (gastown_publish), forum with 5 topics
@@ -96,7 +96,7 @@ gashub-mcp                    # stdio MCP server with 5 tools
 
 ## What Worked
 
-1. **OpenClaw model config**: `moonshot/kimi-k2.5` in openclaw.json + matching `models.json` per agent with `baseUrl: https://api.minimax.villamarket.ai/v1`
+1. **OpenClaw model config**: **`moonshot/minimax-m2.5`** in `openclaw.json` + matching `models.json` per agent with `baseUrl: https://api.minimax.villamarket.ai/v1` (LiteLLM / MiniMax on this machine — **not** Kimi API)
 2. **Agent team via workspace AGENTS.md**: Write `~/.openclaw/workspace/AGENTS.md` with team roster — gets injected into LLM system prompt
 3. **Per-agent subagents.allowAgents: ["*"]**: Required in each agent's list entry (not defaults) for `/subagents spawn` to work
 4. **Topic routing**: Per-topic `requireMention: false` in the bot's own topic, `enabled: false` for other bots' topics
@@ -110,7 +110,7 @@ gashub-mcp                    # stdio MCP server with 5 tools
 3. **`instructions` key in openclaw.json agent list**: Not a valid field — use workspace AGENTS.md instead.
 4. **`session.spawnAllowedAgentIds`**: Not a valid config key. The correct key is per-agent `subagents.allowAgents` in the agents list.
 5. **`commands.native: true/false`**: Changing this breaks `/agents` command authorization. Keep as `"auto"`.
-6. **OpenClaw `kimi-coding/k2p5` model**: Default model in fresh containers — MUST be changed to `moonshot/kimi-k2.5` after every container restart.
+6. **OpenClaw `kimi-coding/k2p5` model**: Wrong default (Kimi coding API) — **must** be **`moonshot/minimax-m2.5`** with LiteLLM baseUrl (see `docs/openclaw-config.md`). **Do not** use Kimi for production inference.
 7. **Gateway overwrites models.json on restart**: Must verify model config after every gateway restart.
 8. **`groupAllowFrom` with group IDs**: Only takes USER IDs. Never put group chat IDs there.
 
@@ -118,7 +118,7 @@ gashub-mcp                    # stdio MCP server with 5 tools
 
 1. **OpenClaw gateway** — not auto-started: `nohup openclaw gateway --port PORT > /tmp/gw.log 2>&1 &`
 2. **Agent sessions** — must activate: `openclaw agent --local --agent <id> --message "online"`
-3. **models.json** — gateway may overwrite to `kimi-coding/k2p5`, must verify `moonshot/kimi-k2.5`
+3. **models.json** — gateway may overwrite to `kimi-coding/k2p5`; must verify **`moonshot/minimax-m2.5`** + LiteLLM `baseUrl`
 4. **Tailscale funnel** — foreground process dies: `tailscale funnel 4000`
 5. **Sub-agent auth** — copy `models.json` from main agent to all sub-agents
 
@@ -195,8 +195,8 @@ openclaw models list  # Auth must be "yes"
 **Critical config per container:**
 ```json
 {
-  "agents.defaults.model.primary": "moonshot/kimi-k2.5",
-  "env.MOONSHOT_API_KEY": "sk-9vMJQmXKcQHjP4pFviqsxA",
+  "agents.defaults.model.primary": "moonshot/minimax-m2.5",
+  "env.MOONSHOT_API_KEY": "sk-<LITELLM_PROXY_KEY>",
   "channels.telegram.groups.-1003810709807.requireMention": true,
   "channels.telegram.groups.-1003810709807.topics.TOPIC_ID.requireMention": false,
   "agents.list[].subagents.allowAgents": ["*"]

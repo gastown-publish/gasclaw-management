@@ -59,7 +59,7 @@ The script uses `flock` on `/tmp/gastown-forum-health.lock` so only one Telethon
 
 **Management topic (`@gasclaw_mgmt_bot`):** if the container has no `channels.telegram.botToken`, Telegram polling is **not** running (`openclaw channels status --probe` shows “not configured”). Topic **921** is marked **`"optional": true`** in `forum_health.json` so the check still exits **0** while you restore the token. Use **`scripts/apply-mgmt-telegram-token.sh`** (reads `GASCLAW_MGMT_TELEGRAM_BOT_TOKEN` or `~/.config/gastown/gasclaw_mgmt_bot_token`), then set **`optional": false`** on that topic when you want a hard failure.
 
-**Agent “model 401” in replies:** transport is healthy; fix LiteLLM / `MOONSHOT_API_KEY` / `models.json` per `HANDOFF.md` (gateway sometimes resets to `kimi-coding/k2p5`).
+**Agent “model 401” in replies:** transport is healthy; fix LiteLLM / `MOONSHOT_API_KEY` / `models.json` per `docs/openclaw-config.md`. Ensure primary is **`moonshot/minimax-m2.5`** (MiniMax via LiteLLM on this host), not **`kimi-coding/k2p5`** or Kimi APIs.
 
 ### OpenClaw cron (per container)
 

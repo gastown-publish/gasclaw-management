@@ -2,8 +2,8 @@
 
 ## Mayor "Not logged in"
 - Container env needs `ANTHROPIC_API_KEY` + `ANTHROPIC_BASE_URL`
-- `GASTOWN_KIMI_KEYS` in .env must be the LiteLLM key (bootstrap uses this)
-- `proxy.py` respects env vars — don't revert to hardcoded Kimi URL
+- `GASTOWN_KIMI_KEYS` in .env is a **legacy name** — value should be the **LiteLLM** key for MiniMax on this host (not Kimi cloud)
+- `proxy.py` respects env vars — don't revert to hardcoded upstream URLs; inference goes through **LiteLLM** → MiniMax
 
 ## OpenClaw "Unknown model" / "Missing auth"
 - OpenClaw uses `models.json` + `auth-profiles.json`, NOT `ANTHROPIC_API_KEY`

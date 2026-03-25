@@ -39,7 +39,7 @@ You manage the Gasclaw platform infrastructure: 3 Docker containers running auto
 - `commands.native: "auto"` — don't change
 - Per-agent `subagents.allowAgents: ["*"]` — allows spawning
 - `acp.allowedAgents: [list]` — allows ACP connections
-- Model: `moonshot/kimi-k2.5` → LiteLLM → vLLM
+- Model: **`moonshot/minimax-m2.5`** → LiteLLM on this host (MiniMax) — **not** Kimi; never `kimi-coding/k2p5`
 - `MOONSHOT_API_KEY` in `env` section of openclaw.json
 
 ### Forum health failure → mayor escalation

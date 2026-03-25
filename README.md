@@ -137,6 +137,7 @@ gasclaw-management/
 │   ├── activate-agents.sh       # Activate all agent sessions
 │   ├── forum_health.sh          # Telethon ping per forum topic (uses ../telethon)
 │   ├── install-openclaw-hourly-progress-cron.sh  # openclaw cron on each container (hourly)
+│   ├── forum_health_escalate.sh   # on failure → notify mgmt OpenClaw / mayor loop (optional)
 │   ├── watchdog.sh              # Cron: restart gateways / vLLM / LiteLLM / funnel
 │   └── check-health.sh          # Health check all services
 └── issues/                      # Tracked issues (beads compatible)

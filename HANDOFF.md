@@ -54,6 +54,7 @@ Each bot only responds in its own topic without @mention. In General and other t
 - **OpenClaw cron (containers):** `scripts/install-openclaw-hourly-progress-cron.sh` registers `openclaw cron add … --cron "0 * * * *" --agent main --no-deliver` on each running container so agents get a scheduled progress nudge (complements Telethon).
 - Config: `config/forum_health.json` — topics **918–921**; default `ping_message` asks for a short **progress** report. Topic **921** (`@gasclaw_mgmt_bot`) is **`optional: true`** until `channels.telegram.botToken` exists in `gasclaw-mgmt` (see `scripts/apply-mgmt-telegram-token.sh`).
 - Docs: `docs/forum-health.md`.
+- **On failure → mayor loop:** `docs/mayor-escalation.md` — optional `scripts/forum_health_escalate.sh` with `GASCLAW_ESCALATE_ON_FAILURE=1` notifies OpenClaw **`infra`** on gasclaw-mgmt; agent watches `gt mayor status`, fixes stack, retests forum health. Paste `docs/workspace-AGENTS-mgmt-snippet.md` into mgmt `~/.openclaw/workspace/AGENTS.md`.
 
 ### Test Results (`python3 /tmp/test_all_bots.py`)
 

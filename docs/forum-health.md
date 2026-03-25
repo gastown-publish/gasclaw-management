@@ -82,3 +82,7 @@ This is complementary to [scripts/watchdog.sh](../scripts/watchdog.sh) (HTTP/gat
 
 `0` — all topics got a bot reply within the timeout.  
 Non-zero — at least one topic failed (see stderr / log).
+
+## Failure → mayor escalation (gasclaw-mgmt)
+
+If forum health fails, you can notify the **gasclaw-mgmt** OpenClaw agent (default **`infra`**) with logs so it **watches Gastown `gt mayor`**, fixes gateway/Telegram, and **retests** until resolved. See [mayor-escalation.md](mayor-escalation.md) and run [`scripts/forum_health_escalate.sh`](../scripts/forum_health_escalate.sh) with `GASCLAW_ESCALATE_ON_FAILURE=1`.

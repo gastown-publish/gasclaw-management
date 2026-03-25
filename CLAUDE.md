@@ -42,6 +42,10 @@ You manage the Gasclaw platform infrastructure: 3 Docker containers running auto
 - Model: `moonshot/kimi-k2.5` → LiteLLM → vLLM
 - `MOONSHOT_API_KEY` in `env` section of openclaw.json
 
+### Forum health failure → mayor escalation
+
+When `scripts/forum_health.sh` fails (or gateway/mayor is unhealthy), **gasclaw-mgmt** should drive the loop: OpenClaw agent **`infra`** receives details, **watches `gt mayor status`** in `/workspace/gt`, fixes Telegram/OpenClaw/LiteLLM as needed, **retests** until green. See **`docs/mayor-escalation.md`**, optional **`scripts/forum_health_escalate.sh`** with `GASCLAW_ESCALATE_ON_FAILURE=1`, and paste **`docs/workspace-AGENTS-mgmt-snippet.md`** into mgmt `~/.openclaw/workspace/AGENTS.md`.
+
 ### After Gateway Restart
 Must activate agents:
 ```bash

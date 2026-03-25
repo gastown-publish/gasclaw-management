@@ -185,6 +185,8 @@ cd /home/nic/gasclaw-workspace/gasclaw-management && bd ready
 
 **ALWAYS read `docs/openclaw-config.md` before changing any config.**
 
+**If bots still error with `kimi-coding/k2p5`:** run `scripts/fix_openclaw_minimax_local.py` **inside each container** (see script docstring), then restart the gateway process so `models.json` and `openclaw.json` reload — old session `.jsonl` logs will still mention Kimi historically; new turns should use `moonshot/minimax-m2.5`.
+
 ```bash
 # Verify after ANY change
 openclaw config validate

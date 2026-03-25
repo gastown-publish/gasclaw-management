@@ -138,6 +138,7 @@ gasclaw-management/
 │   ├── forum_health.sh          # Telethon ping per forum topic (uses ../telethon)
 │   ├── install-openclaw-hourly-progress-cron.sh  # openclaw cron on each container (hourly)
 │   ├── forum_health_escalate.sh   # on failure → notify mgmt OpenClaw / mayor loop (optional)
+│   ├── fix_openclaw_minimax_local.py  # run inside containers to strip kimi-coding/k2p5
 │   ├── run_hourly_forum_health_with_escalation.sh  # cron wrapper (GASCLAW_ESCALATE_ON_FAILURE=1)
 │   ├── watchdog.sh              # Cron: restart gateways / vLLM / LiteLLM / funnel
 │   └── check-health.sh          # Health check all services

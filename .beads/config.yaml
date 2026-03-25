@@ -8,9 +8,8 @@
 # Example: issue-prefix: "myproject" creates issues like "myproject-1", "myproject-2", etc.
 # issue-prefix: ""
 
-# Use no-db mode: JSONL-only, no Dolt database
+# Use no-db mode: JSONL-only, no Dolt database (omit or false when using Dolt)
 # When true, bd will use .beads/issues.jsonl as the source of truth
-# no-db: false
 
 # Enable JSON output by default
 # json: false

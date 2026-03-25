@@ -1,0 +1,2 @@
+# Telegram integration tests (test_all_bots.py)
+telethon>=1.36.0

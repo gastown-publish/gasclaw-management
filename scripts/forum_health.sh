@@ -7,6 +7,14 @@
 
 set -euo pipefail
 
+# One Telethon session file cannot be used by two processes — skip if a run is already active.
+LOCK=/tmp/gastown-forum-health.lock
+exec 200>"$LOCK"
+if ! flock -n 200; then
+  echo "$(date -Is) forum_health: skipped (another run holds $LOCK)" >&2
+  exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MGMT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 

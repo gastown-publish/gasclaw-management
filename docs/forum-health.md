@@ -35,6 +35,10 @@ Add **cron** or **systemd timer** on a host that has network access to Telegram 
 */15 * * * * /home/nic/gasclaw-workspace/gasclaw-management/scripts/forum_health.sh >> /tmp/forum-health.log 2>&1
 ```
 
+**Installed on this host (`nic`):** user crontab includes the line above next to `watchdog.sh`. The script uses `flock` on `/tmp/gastown-forum-health.lock` so only one Telethon process touches the session sqlite at a time.
+
+**Credentials:** create `../telethon/.env` from `telethon/.env.example` (gitignored). This machine uses the same session path as `telegram-test/tg_test_session` unless you override `TELETHON_SESSION_PATH`.
+
 This is complementary to [scripts/watchdog.sh](../scripts/watchdog.sh) (HTTP/gateway restarts). Forum health validates **end-to-end Telegram** delivery per bot.
 
 ## Exit codes

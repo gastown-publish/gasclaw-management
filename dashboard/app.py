@@ -421,16 +421,17 @@ def get_agent_status():
         "gasclaw-gasskill": ["main", "skill-dev", "skill-tester"],
     }
     
-    for container, agent_list in agent_map.items():
-        # Check if container is running
-        stdout, _, rc = run_cmd(f'docker ps --filter "name={container}" --format "{{{{.Names}}}}"')
-        is_running = container in stdout
+    for container_pattern, agent_list in agent_map.items():
+        # Check if container is running and get actual container name
+        stdout, _, rc = run_cmd(f'docker ps --filter "name={container_pattern}" --format "{{{{.Names}}}}"')
+        actual_container = stdout.strip() if stdout else ""
+        is_running = container_pattern in actual_container and actual_container != ""
         
         # Get list of configured agents from the container
         configured_agents = set()
-        if is_running:
+        if is_running and actual_container:
             stdout, _, rc = run_cmd(
-                f'docker exec {container} openclaw agents list 2>/dev/null',
+                f'docker exec {actual_container} openclaw agents list 2>/dev/null',
                 timeout=10
             )
             if stdout:
@@ -443,17 +444,17 @@ def get_agent_status():
         for agent in agent_list:
             if not is_running:
                 status = "offline"
-            elif agent in configured_agents:
-                # Agent is configured - check if it has recent activity
+            elif agent in configured_agents and actual_container:
+                # Agent is configured - check if it has recent activity via sessions
                 stdout, _, rc = run_cmd(
-                    f'docker exec {container} bash -c "stat -c %Y ~/.openclaw/agents/{agent}/agent/auth-profiles.json 2>/dev/null || echo 0"',
+                    f'docker exec {actual_container} bash -c "stat -c %Y ~/.openclaw/agents/{agent}/sessions/sessions.json 2>/dev/null || echo 0"',
                     timeout=5
                 )
                 try:
                     last_modified = int(stdout.strip()) if stdout.strip().isdigit() else 0
                     import time
                     age_seconds = time.time() - last_modified
-                    # If auth file was modified in last hour, consider active
+                    # If sessions file was modified in last hour, consider active
                     status = "active" if age_seconds < 3600 else "idle"
                 except:
                     status = "idle"
@@ -462,7 +463,7 @@ def get_agent_status():
             
             agents.append({
                 "name": agent,
-                "container": container,
+                "container": container_pattern,
                 "status": status,
                 "container_running": is_running
             })

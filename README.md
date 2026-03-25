@@ -116,6 +116,7 @@ gasclaw-management/
 │   ├── openclaw-config.md       # OpenClaw configuration reference
 │   ├── telegram-setup.md        # Telegram bot setup + config rules
 │   ├── forum-health.md          # Periodic per-topic bot health (Telethon)
+│   ├── telethon-where-to-run.md # Host vs gasclaw-mgmt; how to run Telethon
 │   └── troubleshooting.md       # All known issues + fixes
 ├── config/
 │   ├── forum_health.json        # Topic ids + bots for scripts/forum_health.sh

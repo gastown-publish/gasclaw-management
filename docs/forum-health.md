@@ -9,6 +9,10 @@ Gasclaw runs one **OpenClaw** bot per container; each bot has a **dedicated foru
 
 If anything fails, use the printed debug hints, then on the affected container: `openclaw channels status --probe`, `openclaw doctor`, and confirm the gateway is listening (see [HANDOFF.md](../HANDOFF.md) for ports).
 
+## Where Telethon runs (not inside the mgmt container by default)
+
+Forum health uses your **human** Telegram session (Telethon), which is **separate** from the **`gasclaw-mgmt` bot token**. Typical layout: run `scripts/forum_health.sh` on a **host** with the `telethon` clone + `.session`; optional escalation still uses `docker exec gasclaw-mgmt` for OpenClaw. See **[telethon-where-to-run.md](telethon-where-to-run.md)** if you want Telethon inside the container instead.
+
 ## Configuration
 
 | File | Purpose |

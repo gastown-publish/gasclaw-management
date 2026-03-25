@@ -111,6 +111,8 @@ docker run -d \
 
 Or use docker-compose:
 
+Set an explicit project name if the directory is always `gasclaw` on the host (several stacks use `/home/<user>/gasclaw/`). Example: `name: gasskill` or `name: gascontext` as the first line of the file so `docker compose` does not reuse another stack’s containers.
+
 ```yaml
 # /home/<project-name>/gasclaw/docker-compose.yml
 services:

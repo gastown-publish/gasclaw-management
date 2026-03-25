@@ -56,7 +56,7 @@
 ### gascontext
 - User: `/home/gascontext/gasclaw/`
 - Image: `gasclaw-dev-gasclaw` (shared)
-- Compose: `/home/gascontext/gasclaw/docker-compose.yml`
+- Compose: `/home/gascontext/gasclaw/docker-compose.yml` — **`name: gascontext`** (required: parent dir is also named `gasclaw`; without a unique Compose project name, `docker compose` can collide with `/home/gasskill/gasclaw/`)
 - Port: 18797 (gateway)
 - Repo: gastown-publish/context-hub
 - Bot: TBD (@gascontext_bot)

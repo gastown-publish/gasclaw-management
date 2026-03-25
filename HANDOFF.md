@@ -139,6 +139,7 @@ cd /home/nic/gasclaw-workspace/gasclaw-management && bd ready
 | `/home/nic/gasclaw-workspace/gasclaw/` | Gasclaw source + tests |
 | `/home/{gasclaw,minimax,gasskill,gasclaw-mgmt}/gasclaw/.env` | Container env files |
 | `/home/nic/gasclaw-workspace/gasclaw/reference/openclaw-telegram.md` | OpenClaw Telegram config reference |
+| `/home/nic/gasclaw-workspace/gasclaw-management/prompts/context-hub-fork-handoff.md` | Handoff prompt: fork Context Hub, MCP, Gasclaw-managed repo, absolute paths |
 
 ## OpenClaw Config Reference
 

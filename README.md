@@ -92,6 +92,10 @@ done
 # Run Telegram integration tests
 cd tests && python3 test_all_bots.py
 
+# Forum topic health (per-bot ping in each topic; uses gastown-publish/telethon)
+# See docs/forum-health.md — requires ../telethon with .env + session
+./scripts/forum_health.sh
+
 # Check CI across all repos
 for repo in gasclaw minimax gasskill; do
   echo "=== $repo ===" && gh run list --repo gastown-publish/$repo --limit 1
@@ -108,8 +112,10 @@ gasclaw-management/
 │   ├── infrastructure.md        # Full infra setup guide
 │   ├── openclaw-config.md       # OpenClaw configuration reference
 │   ├── telegram-setup.md        # Telegram bot setup + config rules
+│   ├── forum-health.md          # Periodic per-topic bot health (Telethon)
 │   └── troubleshooting.md       # All known issues + fixes
 ├── config/
+│   ├── forum_health.json        # Topic ids + bots for scripts/forum_health.sh
 │   ├── gasclaw-dev.env.example  # Container env templates
 │   ├── gasclaw-minimax.env.example
 │   ├── gasclaw-gasskill.env.example
@@ -126,6 +132,8 @@ gasclaw-management/
 ├── scripts/
 │   ├── restart-gateways.sh      # Restart all OpenClaw gateways
 │   ├── activate-agents.sh       # Activate all agent sessions
+│   ├── forum_health.sh          # Telethon ping per forum topic (uses ../telethon)
+│   ├── watchdog.sh              # Cron: restart gateways / vLLM / LiteLLM / funnel
 │   └── check-health.sh          # Health check all services
 └── issues/                      # Tracked issues (beads compatible)
     └── README.md

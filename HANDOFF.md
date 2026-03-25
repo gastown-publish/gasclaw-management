@@ -48,6 +48,12 @@ Run an autonomous AI agent platform with 4 Docker containers, each managing a Gi
 
 Each bot only responds in its own topic without @mention. In General and other topics, @mention is required.
 
+### Forum topic health (cron)
+
+- Script: `gasclaw-management/scripts/forum_health.sh` (uses [gastown-publish/telethon](https://github.com/gastown-publish/telethon) `gastown-telethon-forum-health`).
+- Config: `config/forum_health.json` — pings topics **918–921** in-group and expects each bot to reply.
+- Docs: `docs/forum-health.md`.
+
 ### Test Results (`python3 /tmp/test_all_bots.py`)
 
 ```

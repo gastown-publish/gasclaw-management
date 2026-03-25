@@ -1,0 +1,27 @@
+{
+  "group_id": -1003810709807,
+  "ping_message": "[gasclaw-mgmt health] ping — reply OK if you see this.",
+  "reply_timeout_sec": 45,
+  "topics": [
+    {
+      "topic_id": 918,
+      "bot_username": "gasclaw_master_bot",
+      "label": "gasclaw"
+    },
+    {
+      "topic_id": 919,
+      "bot_username": "minimax_gastown_publish_bot",
+      "label": "minimax"
+    },
+    {
+      "topic_id": 920,
+      "bot_username": "gasskill_agent_bot",
+      "label": "gasskill"
+    },
+    {
+      "topic_id": 921,
+      "bot_username": "gasclaw_mgmt_bot",
+      "label": "management"
+    }
+  ]
+}

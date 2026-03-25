@@ -53,6 +53,16 @@
 - Bot: @gasskill_agent_bot
 - Agents: main, skill-dev, skill-tester
 
+### gascontext
+- User: `/home/gascontext/gasclaw/`
+- Image: `gasclaw-dev-gasclaw` (shared)
+- Compose: `/home/gascontext/gasclaw/docker-compose.yml`
+- Port: 18797 (gateway)
+- Repo: gastown-publish/context-hub
+- Bot: TBD (@gascontext_bot)
+- Agents: main, content-curator, mcp-tester
+- Local clone: `/home/nic/gasclaw-workspace/context-hub`
+
 ## CloudFront Distribution
 - Website: `minimax.villamarket.ai` → S3 `minimax-villamarket-website`
 - Chat: `app.minimax.villamarket.ai` → DeerFlow (port 10000)

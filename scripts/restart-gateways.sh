@@ -1,7 +1,7 @@
 #!/bin/bash
 # Restart all OpenClaw gateways
 
-CONTAINERS=("gasclaw-dev:18794" "gasclaw-minimax:18793" "gasclaw-gasskill:18796")
+CONTAINERS=("gasclaw-dev:18794" "gasclaw-minimax:18793" "gasclaw-gasskill:18796" "gascontext:18797")
 
 for entry in "${CONTAINERS[@]}"; do
   container="${entry%%:*}"

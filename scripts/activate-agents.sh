@@ -29,3 +29,12 @@ for agent in main skill-dev skill-tester; do
   openclaw agent --local --agent \$agent --message 'Agent online.' 2>&1 | tail -1
 done
 " 2>&1
+
+echo "=== gascontext ==="
+docker exec gascontext bash -c "
+export MOONSHOT_API_KEY=$MOONSHOT_API_KEY
+for agent in main content-curator mcp-tester; do
+  echo \"Activating \$agent...\"
+  openclaw agent --local --agent \$agent --message 'Agent online.' 2>&1 | tail -1
+done
+" 2>&1

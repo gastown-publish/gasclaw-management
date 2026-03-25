@@ -10,7 +10,7 @@ Run an autonomous AI agent platform with 4 Docker containers, each managing a Gi
 
 ## Current Progress
 
-### 4 Containers — ALL WORKING (18/18 tests passing)
+### 5 Containers (4 working + 1 planned)
 
 | Container | User | Bot | Repo | Gateway | Topic |
 |-----------|------|-----|------|---------|-------|
@@ -18,12 +18,14 @@ Run an autonomous AI agent platform with 4 Docker containers, each managing a Gi
 | gasclaw-minimax | /home/minimax/ | @minimax_gastown_publish_bot | gastown-publish/minimax | :18793 | 919 (📦 minimax) |
 | gasclaw-gasskill | /home/gasskill/ | @gasskill_agent_bot | gastown-publish/gasskill | :18796 | 920 (🔧 gasskill) |
 | gasclaw-mgmt | /home/gasclaw-mgmt/ | @gasclaw_mgmt_bot | gastown-publish/gasclaw-management | :18798 | 921 (📊 management) |
+| gascontext | /home/gascontext/ | TBD (@gascontext_bot) | gastown-publish/context-hub | :18797 | TBD (📚 context-hub) |
 
 ### Agent Teams
 
 - **gasclaw-dev**: main, crew-1 (Developer), crew-2 (Reviewer)
 - **gasclaw-minimax**: main, coordinator (Tech Lead), developer, devops, tester, reviewer
 - **gasclaw-gasskill**: main, skill-dev, skill-tester
+- **gascontext**: main (📚 Context Hub Overseer), content-curator (📝), mcp-tester (🔌)
 - **gasclaw-mgmt**: main, infra (Infra Monitor), ci-watcher
 
 ### Infrastructure

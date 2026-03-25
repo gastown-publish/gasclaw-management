@@ -83,7 +83,7 @@ class GasclawAPI:
     def overview(self) -> Dict[str, Any]:
         """Get system overview"""
         try:
-            resp = self.session.get(f"{self.base_url}/api/overview", timeout=10)
+            resp = self.session.get(f"{self.base_url}/api/overview", timeout=30)
             return resp.json()
         except Exception as e:
             return {"status": "error", "error": str(e)}
@@ -107,7 +107,7 @@ class GasclawAPI:
     def agents(self) -> Dict[str, Any]:
         """Get agent status"""
         try:
-            resp = self.session.get(f"{self.base_url}/api/agents", timeout=5)
+            resp = self.session.get(f"{self.base_url}/api/agents", timeout=15)
             return resp.json()
         except Exception as e:
             return {"agents": [], "error": str(e)}
@@ -159,7 +159,8 @@ def get_exit_code(data: Dict[str, Any]) -> int:
             return EXIT_ERROR
         
         # Check containers
-        containers = data.get('containers', [])
+        docker_data = data.get('docker', {})
+        containers = docker_data.get('containers', []) if isinstance(docker_data, dict) else []
         if any(c.get('status') != 'running' for c in containers):
             return EXIT_WARNING
         
@@ -224,8 +225,9 @@ def status(ctx):
         summary.add_column("Status", style="green")
         summary.add_column("Details")
         
-        containers = data.get('containers', [])
-        running = sum(1 for c in containers if c.get('status') == 'running')
+        docker_data = data.get('docker', {})
+        containers = docker_data.get('containers', []) if isinstance(docker_data, dict) else []
+        running = sum(1 for c in containers if c.get('state') == 'running')
         summary.add_row("Containers", f"{running}/{len(containers)} running", 
                        "✓ All operational" if running == len(containers) else "⚠ Some stopped")
         
@@ -235,13 +237,15 @@ def status(ctx):
         summary.add_row("Gateways", f"{healthy}/{len(gateways)} healthy",
                        "✓ All healthy" if healthy == len(gateways) else "⚠ Some unhealthy")
         
-        agents = data.get('agents', {})
-        active = agents.get('active', 0)
-        total = agents.get('total', 0)
+        agents_data = data.get('agents', {})
+        agents_list = agents_data.get('agents', []) if isinstance(agents_data, dict) else []
+        active = sum(1 for a in agents_list if a.get('status') == 'active')
+        total = len(agents_list)
         summary.add_row("Agents", f"{active}/{total} active",
                        "✓ All active" if active == total else "⚠ Some inactive")
         
-        issues = data.get('issues', [])
+        beads_data = data.get('beads', {})
+        issues = beads_data.get('issues', []) if isinstance(beads_data, dict) else []
         critical = sum(1 for i in issues if i.get('priority') == 0)
         high = sum(1 for i in issues if i.get('priority') == 1)
         issue_status = f"[red]{critical} critical[/red], [yellow]{high} high[/yellow]" if (critical + high) > 0 else "[green]✓ No urgent issues[/green]"
@@ -356,9 +360,11 @@ def agents(ctx, watch: bool, interval: int):
             return json.dumps(data, indent=2)
         
         agents_list = data.get('agents', [])
+        active_count = sum(1 for a in agents_list if a.get('status') == 'active')
+        total_count = len(agents_list)
         
         if HAS_RICH and console:
-            table = Table(box=box.ROUNDED, title=f"Agents ({data.get('active', 0)}/{data.get('total', 0)} active)")
+            table = Table(box=box.ROUNDED, title=f"Agents ({active_count}/{total_count} active)")
             table.add_column("Agent", style="cyan")
             table.add_column("Container")
             table.add_column("Status", style="green")
@@ -375,7 +381,7 @@ def agents(ctx, watch: bool, interval: int):
                 )
             return table
         else:
-            lines = [f"=== Agents ({data.get('active', 0)}/{data.get('total', 0)} active) ==="]
+            lines = [f"=== Agents ({active_count}/{total_count} active) ==="]
             for a in agents_list:
                 lines.append(f"{a.get('name', 'unknown')}: {a.get('status', 'unknown')} ({a.get('container', 'unknown')})")
             return "\n".join(lines)

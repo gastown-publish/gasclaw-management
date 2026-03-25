@@ -72,8 +72,19 @@ def get_docker_status():
     
     for cfg in CONTAINERS:
         name = cfg["name"]
+        # Find matching container (exact match or suffix match for renamed containers)
+        matched_name = None
         if name in running_containers:
-            info = running_containers[name]
+            matched_name = name
+        else:
+            # Check if any running container name ends with our expected name
+            for running_name in running_containers:
+                if running_name.endswith(name):
+                    matched_name = running_name
+                    break
+        
+        if matched_name:
+            info = running_containers[matched_name]
             containers.append({
                 "name": name,
                 "state": "running",

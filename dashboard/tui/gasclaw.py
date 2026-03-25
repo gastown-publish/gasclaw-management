@@ -107,7 +107,7 @@ class GasclawAPI:
     def agents(self) -> Dict[str, Any]:
         """Get agent status"""
         try:
-            resp = self.session.get(f"{self.base_url}/api/agents", timeout=15)
+            resp = self.session.get(f"{self.base_url}/api/agents", timeout=25)
             return resp.json()
         except Exception as e:
             return {"agents": [], "error": str(e)}

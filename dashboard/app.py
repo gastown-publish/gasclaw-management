@@ -426,20 +426,39 @@ def get_agent_status():
         stdout, _, rc = run_cmd(f'docker ps --filter "name={container}" --format "{{{{.Names}}}}"')
         is_running = container in stdout
         
+        # Get list of configured agents from the container
+        configured_agents = set()
+        if is_running:
+            stdout, _, rc = run_cmd(
+                f'docker exec {container} openclaw agents list 2>/dev/null',
+                timeout=10
+            )
+            if stdout:
+                # Parse agent names from output like "- main (default)"
+                for line in stdout.split('\n'):
+                    if line.strip().startswith('- '):
+                        agent_name = line.strip()[2:].split()[0]
+                        configured_agents.add(agent_name)
+        
         for agent in agent_list:
-            # Try to get agent status via mayor command (if available)
-            status = "unknown"
-            if is_running:
+            if not is_running:
+                status = "offline"
+            elif agent in configured_agents:
+                # Agent is configured - check if it has recent activity
                 stdout, _, rc = run_cmd(
-                    f'docker exec {container} bash -c "cd /workspace/gt 2>/dev/null && gt mayor status 2>/dev/null | grep -i {agent}" 2>/dev/null',
+                    f'docker exec {container} bash -c "stat -c %Y ~/.openclaw/agents/{agent}/agent/auth-profiles.json 2>/dev/null || echo 0"',
                     timeout=5
                 )
-                if stdout:
-                    status = "active" if "active" in stdout.lower() or "online" in stdout.lower() else "idle"
-                else:
-                    status = "unknown" if rc != 0 else "idle"
+                try:
+                    last_modified = int(stdout.strip()) if stdout.strip().isdigit() else 0
+                    import time
+                    age_seconds = time.time() - last_modified
+                    # If auth file was modified in last hour, consider active
+                    status = "active" if age_seconds < 3600 else "idle"
+                except:
+                    status = "idle"
             else:
-                status = "offline"
+                status = "unknown"
             
             agents.append({
                 "name": agent,

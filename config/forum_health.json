@@ -21,7 +21,8 @@
     {
       "topic_id": 921,
       "bot_username": "gasclaw_mgmt_bot",
-      "label": "management"
+      "label": "management",
+      "optional": true
     }
   ]
 }

@@ -12,7 +12,7 @@ check_restart_gateway() {
     echo "[$TIMESTAMP] $container gateway DOWN on port $port — restarting"
     docker exec "$container" bash -c "
       rm -f /root/.openclaw/gateway.lock
-      nohup openclaw gateway --port $port > /tmp/openclaw-gw.log 2>&1 &
+      nohup openclaw gateway run --port $port --allow-unconfigured >> /tmp/openclaw-gw.log 2>&1 &
     " 2>/dev/null
     sleep 5
     local check=$(docker exec "$container" bash -c "tail -1 /tmp/openclaw-gw.log 2>/dev/null" 2>/dev/null)

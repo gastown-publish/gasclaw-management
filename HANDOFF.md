@@ -51,7 +51,7 @@ Each bot only responds in its own topic without @mention. In General and other t
 ### Forum topic health (cron)
 
 - Script: `gasclaw-management/scripts/forum_health.sh` (uses [gastown-publish/telethon](https://github.com/gastown-publish/telethon) `gastown-telethon-forum-health`).
-- Config: `config/forum_health.json` — pings topics **918–921** in-group and expects each bot to reply.
+- Config: `config/forum_health.json` — pings topics **918–921** in-group and expects each bot to reply. Topic **921** (`@gasclaw_mgmt_bot`) is **`optional: true`** until `channels.telegram.botToken` exists in `gasclaw-mgmt` (see `scripts/apply-mgmt-telegram-token.sh`).
 - Docs: `docs/forum-health.md`.
 
 ### Test Results (`python3 /tmp/test_all_bots.py`)

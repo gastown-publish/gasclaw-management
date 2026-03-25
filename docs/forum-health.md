@@ -39,6 +39,10 @@ Add **cron** or **systemd timer** on a host that has network access to Telegram 
 
 **Credentials:** create `../telethon/.env` from `telethon/.env.example` (gitignored). This machine uses the same session path as `telegram-test/tg_test_session` unless you override `TELETHON_SESSION_PATH`.
 
+**Management topic (`@gasclaw_mgmt_bot`):** if the container has no `channels.telegram.botToken`, Telegram polling is **not** running (`openclaw channels status --probe` shows “not configured”). Topic **921** is marked **`"optional": true`** in `forum_health.json` so the check still exits **0** while you restore the token. Use **`scripts/apply-mgmt-telegram-token.sh`** (reads `GASCLAW_MGMT_TELEGRAM_BOT_TOKEN` or `~/.config/gastown/gasclaw_mgmt_bot_token`), then set **`optional": false`** on that topic when you want a hard failure.
+
+**Agent “model 401” in replies:** transport is healthy; fix LiteLLM / `MOONSHOT_API_KEY` / `models.json` per `HANDOFF.md` (gateway sometimes resets to `kimi-coding/k2p5`).
+
 This is complementary to [scripts/watchdog.sh](../scripts/watchdog.sh) (HTTP/gateway restarts). Forum health validates **end-to-end Telegram** delivery per bot.
 
 ## Exit codes

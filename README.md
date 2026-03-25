@@ -96,6 +96,9 @@ cd tests && python3 test_all_bots.py
 # See docs/forum-health.md — requires ../telethon with .env + session
 ./scripts/forum_health.sh
 
+# Restore @gasclaw_mgmt_bot Telegram token in container (after BotFather token is available)
+# ./scripts/apply-mgmt-telegram-token.sh
+
 # Check CI across all repos
 for repo in gasclaw minimax gasskill; do
   echo "=== $repo ===" && gh run list --repo gastown-publish/$repo --limit 1

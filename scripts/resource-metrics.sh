@@ -9,12 +9,10 @@ DISK_TOTAL=$(df -BG / | awk 'NR==2 {print $2}' | sed 's/G//')
 DISK_USED=$(df -BG / | awk 'NR==2 {print $3}' | sed 's/G//')
 DISK_AVAIL=$(df -BG / | awk 'NR==2 {print $4}' | sed 's/G//')
 
-# Memory from /proc/meminfo
-MEM_TOTAL_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-MEM_AVAIL_KB=$(grep MemAvailable /proc/meminfo | awk '{print $2}')
-if [ -n "$MEM_TOTAL_KB" ]; then
-    MEM_TOTAL=$((MEM_TOTAL_KB / 1024))
-    MEM_AVAIL=$((MEM_AVAIL_KB / 1024))
+# Memory from /proc/meminfo (convert KB to MB)
+if [ -f /proc/meminfo ]; then
+    MEM_TOTAL=$(grep MemTotal /proc/meminfo | awk '{print int($2/1024)}')
+    MEM_AVAIL=$(grep MemAvailable /proc/meminfo | awk '{print int($2/1024)}')
     MEM_USED=$((MEM_TOTAL - MEM_AVAIL))
 else
     MEM_TOTAL="N/A"

@@ -58,6 +58,7 @@ cat <<EOF
         .ok { color: #4ade80; }
         .fail { color: #f87171; }
         h1 { color: #60a5fa; }
+        button { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
         .metric { font-size: 24px; font-weight: bold; }
     </style>
 </head>

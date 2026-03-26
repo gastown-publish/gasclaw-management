@@ -50,6 +50,7 @@ cat <<EOF
 <head>
     <title>Gasclaw Dashboard</title>
     <meta http-equiv="refresh" content="30">
+    <script>let s=30;setInterval(()=>{document.getElementById('c').innerText=s},1e3);</script>
     <style>
         body { font-family: -apple-system, sans-serif; margin: 20px; background: #1a1a2e; color: #eee; }
         @media (max-width: 600px) { body { margin: 10px; } .card { padding: 10px; } .metric { font-size: 18px; } h1 { font-size: 20px; } }
@@ -94,7 +95,7 @@ cat <<EOF
         <div class="metric">${COMMITS_AHEAD} commits ahead</div>
     </div>
     <p><small>Updated: $LAST_CHECK ($TIMESTAMP)</small></p>
-    <p><small><a href="./health-check.sh" style="color:#60a5fa;">Run Health Check</a> | <a href="file:///tmp/gasclaw-metrics.json" style="color:#60a5fa;">Metrics JSON</a></small></p>
+    <p><small><a href="./health-check.sh" style="color:#60a5fa;">Run Health Check</a> | <a href="file:///tmp/gasclaw-metrics.json" style="color:#60a5fa;">Metrics JSON</a> | Refresh: <span id="c">30</span>s</small></p>
 </body>
 </html>
 EOF

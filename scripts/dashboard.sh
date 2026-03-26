@@ -34,6 +34,7 @@ fi
 # Get uptime
 UPTIME=$(cat /proc/uptime | awk '{printf "%.1f days", $1/86400}')
 LAST_CHECK=$(date '+%H:%M:%S')
+VERSION=$(grep lastTouchedVersion /root/.openclaw/openclaw.json 2>/dev/null | sed 's/.*": *"\([^"]*\)".*/\1/' || echo "unknown")
 [ -z "$UPTIME" ] && UPTIME="unknown"
 
 [ -z "$DISK_AVAIL" ] && DISK_AVAIL="N/A"
@@ -60,7 +61,8 @@ cat <<EOF
     </style>
 </head>
 <body>
-    <h1>🚀 Gasclaw Platform Dashboard <small>$(hostname)</small></h1>
+    <h1>🚀 Gasclaw <small>v$VERSION</small></h1>
+    <p><small>$(hostname)</small></p>
     <div class="card">
         <h2>Disk</h2>
         <div class="metric">${DISK_PERC}% used (${DISK_USED}GB / ${DISK_TOTAL}GB)</div>

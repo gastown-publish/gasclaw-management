@@ -67,10 +67,6 @@ cat <<EOF
         </div>
     </div>
     <div class="card">
-        <h2>Git</h2>
-        <div class="metric">$GIT_STATUS</div>
-    </div>
-    <div class="card">
         <h2>Beads</h2>
         <div class="metric $BEADS_CLASS">$BEADS_COUNT</div>
     </div>

@@ -23,6 +23,21 @@
 - DB: PostgreSQL `litellm` on localhost:5432
 - Models: **minimax-m2.5** (primary via LiteLLM on this host), claude-sonnet-4-6, claude-opus-4-6 (all routed per `litellm-config.yaml`)
 - **CRITICAL**: `database_url` + `disable_prisma_schema_update: true`, `prisma` on PATH
+- Health: `curl -s http://localhost:4000/health` (returns 200 if running)
+
+## Health Check (Host)
+
+Run on GPU host to verify all services:
+```bash
+# vLLM (port 8080)
+curl -s http://localhost:8080/v1/models
+
+# LiteLLM (port 4000)
+curl -s http://localhost:4000/health
+
+# PostgreSQL
+pg_isready -h localhost -p 5432 -U litellm
+```
 
 ## Gasclaw Containers
 

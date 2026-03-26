@@ -2,16 +2,12 @@
 # Dashboard - serves simple HTML metrics dashboard
 # Usage: ./dashboard.sh
 
-# Source metrics
-. "$(dirname "$0")/resource-metrics.sh" >/dev/null 2>&1
-
-# Parse JSON without jq (use grep/sed)
 METRICS_FILE="/tmp/gasclaw-metrics.json"
 if [ -f "$METRICS_FILE" ]; then
-    DISK_AVAIL=$(grep '"avail_gb"' "$METRICS_FILE" | sed 's/.*: *\([0-9]*\).*/\1/')
-    GATEWAY=$(grep '"gateway"' "$METRICS_FILE" | sed 's/.*": *"\([^"]*\)".*/\1/')
-    GIT_STATUS=$(grep '"status"' "$METRICS_FILE" | grep -v gateway | sed 's/.*": *"\([^"]*\)".*/\1/')
-    TIMESTAMP=$(grep '"timestamp"' "$METRICS_FILE" | sed 's/.*": *"\([^"]*\)".*/\1/')
+    DISK_AVAIL=$(grep 'avail_gb' "$METRICS_FILE" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    GATEWAY=$(grep '"gateway"' "$METRICS_FILE" | sed 's/.*gateway.*: *"\([^"]*\)".*/\1/')
+    GIT_STATUS=$(grep '"status"' "$METRICS_FILE" | head -1 | sed 's/.*status.*: *"\([^"]*\)".*/\1/')
+    TIMESTAMP=$(grep 'timestamp' "$METRICS_FILE" | sed 's/.*timestamp.*: *"\([^"]*\)".*/\1/')
 else
     DISK_AVAIL="N/A"
     GATEWAY="unknown"
@@ -26,7 +22,6 @@ fi
 GATEWAY_CLASS="ok"
 [ "$GATEWAY" != "healthy" ] && GATEWAY_CLASS="fail"
 
-# Generate HTML
 cat <<EOF
 <!DOCTYPE html>
 <html>

@@ -10,6 +10,7 @@ if [ -f "$METRICS_FILE" ]; then
     MEM_USED=$(grep used_mb "$METRICS_FILE" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
     MEM_TOTAL=$(grep total_mb "$METRICS_FILE" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
     MEM_PERC=$((MEM_USED * 100 / MEM_TOTAL))
+    COMMITS_AHEAD=$(grep commits_ahead "$METRICS_FILE" | sed 's/.*: *\([0-9]*\).*/\1/')
 else
     DISK_AVAIL="N/A"
     GATEWAY="unknown"
@@ -80,6 +81,10 @@ cat <<EOF
     <div class="card">
         <h2>Memory</h2>
         <div class="metric">${MEM_PERC}% used (${MEM_USED}MB / ${MEM_TOTAL}MB)</div>
+    </div>
+    <div class="card">
+        <h2>Git</h2>
+        <div class="metric">${COMMITS_AHEAD} commits ahead</div>
     </div>
     <p><small>Updated: $TIMESTAMP</small></p>
 </body>

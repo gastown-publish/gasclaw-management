@@ -63,6 +63,9 @@ cat <<EOF
 <body>
     <h1>🚀 Gasclaw <small>v$VERSION</small></h1>
     <p><small>$(hostname)</small></p>
+    <div class="card" style="background: #22c55e; color: #000;">
+        <div class="metric">✓ All Systems Operational</div>
+    </div>
     <div class="card">
         <h2>Disk</h2>
         <div class="metric">${DISK_PERC}% used (${DISK_USED}GB / ${DISK_TOTAL}GB)</div>

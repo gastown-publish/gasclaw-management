@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Hourly: send progress report request to each bot topic, using existing Telethon session
+# Hourly agent health check + status report
+# Uses Telethon to send structured prompt to each topic, waits 5min, inspects responses.
+# Cron: 0 * * * *
 set -euo pipefail
 
 LOCK=/tmp/gastown-hourly-report.lock
@@ -11,45 +13,155 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MGMT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CONFIG="$MGMT_ROOT/config/forum_health.json"
 SESSION="/home/nic/gasclaw-workspace/telegram-test/tg_test_session.session"
+PYTHON="/home/nic/gasclaw-workspace/telethon/.venv/bin/python3"
+LOG="/tmp/hourly-report.log"
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
-python3 << PYEOF
+echo "[$TIMESTAMP] === HOURLY AGENT REPORT START ==="
+
+# Step 1: Send structured status request to each bot topic
+echo "[$TIMESTAMP] Step 1: Sending status requests..."
+$PYTHON << 'PYEOF'
 import asyncio, json, os, sys
 from telethon import TelegramClient
 
-SESSION = "$SESSION"
+SESSION = os.environ.get("SESSION", "/home/nic/gasclaw-workspace/telegram-test/tg_test_session.session")
 API_ID = 29672461
 API_HASH = "0e0b535e8e0db252f86f0a6a8de3624e"
 GROUP_ID = -1003810709807
 
-with open("$CONFIG") as f:
-    config = json.load(f)
+TOPICS = {
+    918: {"bot": "gasclaw_master_bot", "label": "gasclaw", "mention": "@gasclaw_master_bot"},
+    919: {"bot": "minimax_gastown_publish_bot", "label": "minimax", "mention": "@minimax_gastown_publish_bot"},
+    920: {"bot": "gasskill_agent_bot", "label": "gasskill", "mention": "@gasskill_agent_bot"},
+    921: {"bot": "gasclaw_mgmt_bot", "label": "mgmt", "mention": "@gasclaw_mgmt_bot"},
+}
 
-PING = config["ping_message"]
+PROMPT = """Hourly status report — respond with EXACTLY this format:
+
+STATUS: [online/degraded/error]
+CONTAINER: [your container name]
+REPO: [repo you manage, or "none"]
+AGENTS: [list your agent team members]
+LAST_WORK: [what you did since last report, or "idle"]
+BLOCKERS: [any issues, or "none"]
+IMPROVEMENT: [one concrete thing you will improve next]
+
+Keep it under 10 lines. Do not add extra commentary."""
 
 async def main():
     client = TelegramClient(SESSION, API_ID, API_HASH)
     await client.start()
     group = await client.get_entity(GROUP_ID)
-    
-    for topic in config["topics"]:
-        tid = topic["topic_id"]
-        label = topic["label"]
-        optional = topic.get("optional", False)
-        
-        if optional:
-            print(f"  skip {label} (optional)")
-            continue
-        
+
+    for tid, info in TOPICS.items():
         try:
-            await client.send_message(group, PING, reply_to=tid)
-            print(f"  sent to {label} (topic {tid})")
+            await client.send_message(group, PROMPT, reply_to=tid)
+            print(f"  sent to {info['label']} (topic {tid})")
         except Exception as e:
-            print(f"  FAIL {label}: {e}")
-    
+            print(f"  FAIL {info['label']}: {e}")
+
     await client.disconnect()
-    print("done")
 
 asyncio.run(main())
 PYEOF
+
+# Step 2: Wait 5 minutes for bot responses
+WAIT=300
+echo "[$TIMESTAMP] Step 2: Waiting ${WAIT}s for bot responses..."
+sleep $WAIT
+
+# Step 3: Inspect responses and grade them
+INSPECT_TS=$(date '+%Y-%m-%d %H:%M:%S')
+echo "[$INSPECT_TS] Step 3: Inspecting responses..."
+$PYTHON << 'PYEOF'
+import asyncio, json, os, sys, time
+from telethon import TelegramClient
+
+SESSION = os.environ.get("SESSION", "/home/nic/gasclaw-workspace/telegram-test/tg_test_session.session")
+API_ID = 29672461
+API_HASH = "0e0b535e8e0db252f86f0a6a8de3624e"
+GROUP_ID = -1003810709807
+
+TOPICS = {
+    918: {"bot": "gasclaw_master_bot", "label": "gasclaw"},
+    919: {"bot": "minimax_gastown_publish_bot", "label": "minimax"},
+    920: {"bot": "gasskill_agent_bot", "label": "gasskill"},
+    921: {"bot": "gasclaw_mgmt_bot", "label": "mgmt"},
+}
+
+REQUIRED_FIELDS = ["STATUS:", "CONTAINER:", "REPO:", "AGENTS:", "LAST_WORK:", "BLOCKERS:", "IMPROVEMENT:"]
+
+async def main():
+    client = TelegramClient(SESSION, API_ID, API_HASH)
+    await client.start()
+    group = await client.get_entity(GROUP_ID)
+
+    results = {"pass": 0, "fail": 0, "no_reply": 0, "wrong_bot": 0, "details": []}
+    cutoff = time.time() - 360  # messages from last 6 min
+
+    for tid, info in TOPICS.items():
+        expected_bot = info["bot"]
+        label = info["label"]
+        found = False
+
+        async for msg in client.iter_messages(group, reply_to=tid, limit=5):
+            if msg.date.timestamp() < cutoff:
+                continue
+
+            is_bot = getattr(msg.sender, "bot", False)
+            username = getattr(msg.sender, "username", "") if msg.sender else ""
+            text = msg.text or ""
+
+            if not is_bot:
+                continue
+
+            found = True
+            if username != expected_bot:
+                results["wrong_bot"] += 1
+                results["details"].append(f"  ❌ {label}: WRONG BOT @{username} (expected @{expected_bot})")
+                break
+
+            # Check response quality
+            fields_found = sum(1 for f in REQUIRED_FIELDS if f in text)
+            has_status = "STATUS:" in text
+            status_val = ""
+            for line in text.split("\n"):
+                if line.strip().startswith("STATUS:"):
+                    status_val = line.split(":", 1)[1].strip().lower()
+
+            if fields_found >= 5 and has_status:
+                results["pass"] += 1
+                status_icon = "✅" if "online" in status_val else "⚠️"
+                results["details"].append(f"  {status_icon} {label}: @{username} — {fields_found}/7 fields, status={status_val}")
+            elif fields_found >= 3:
+                results["pass"] += 1
+                results["details"].append(f"  ⚠️  {label}: @{username} — partial ({fields_found}/7 fields)")
+            else:
+                results["fail"] += 1
+                snippet = text[:80].replace("\n", " ")
+                results["details"].append(f"  ❌ {label}: @{username} — bad format ({fields_found}/7): {snippet}")
+            break
+
+        if not found:
+            results["no_reply"] += 1
+            results["details"].append(f"  ❌ {label}: NO REPLY from @{expected_bot}")
+
+    # Print report
+    total = results["pass"] + results["fail"] + results["no_reply"] + results["wrong_bot"]
+    print(f"\n=== HOURLY REPORT: {results['pass']}/{total} PASS ===")
+    for d in results["details"]:
+        print(d)
+    if results["no_reply"]:
+        print(f"\n  ⚠️  {results['no_reply']} bot(s) did not reply — check gateway health")
+    if results["wrong_bot"]:
+        print(f"\n  ⚠️  {results['wrong_bot']} wrong-bot reply — check topic routing")
+    print(f"=== END REPORT ===\n")
+
+    await client.disconnect()
+
+asyncio.run(main())
+PYEOF
+
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] === HOURLY AGENT REPORT DONE ==="

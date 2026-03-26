@@ -1,6 +1,6 @@
 #!/bin/bash
 # Fix dolt push issue: "no common ancestor with remote"
-# Bead: gasclaw-management-oh9h
+# Bead: gt-00u (resolved)
 
 set -e
 

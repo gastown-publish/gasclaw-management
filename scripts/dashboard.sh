@@ -33,6 +33,7 @@ fi
 
 # Get uptime
 UPTIME=$(cat /proc/uptime | awk '{printf "%.1f days", $1/86400}')
+LAST_CHECK=$(date '+%H:%M:%S')
 [ -z "$UPTIME" ] && UPTIME="unknown"
 
 [ -z "$DISK_AVAIL" ] && DISK_AVAIL="N/A"
@@ -85,7 +86,7 @@ cat <<EOF
         <h2>Git</h2>
         <div class="metric">${COMMITS_AHEAD} commits ahead</div>
     </div>
-    <p><small>Updated: $TIMESTAMP</small></p>
+    <p><small>Updated: $LAST_CHECK ($TIMESTAMP)</small></p>
 </body>
 </html>
 EOF

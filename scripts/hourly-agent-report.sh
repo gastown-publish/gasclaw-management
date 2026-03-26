@@ -38,17 +38,29 @@ TOPICS = {
     921: {"bot": "gasclaw_mgmt_bot", "label": "mgmt", "mention": "@gasclaw_mgmt_bot"},
 }
 
-PROMPT = """Hourly status report — respond with EXACTLY this format:
+PROMPT = """Hourly status report. RULES: "none" is NOT acceptable for IMPROVEMENT — you MUST find something real. Use numbers everywhere.
 
 STATUS: [online/degraded/error]
-CONTAINER: [your container name]
-REPO: [repo you manage, or "none"]
-AGENTS: [list your agent team members]
-LAST_WORK: [what you did since last report, or "idle"]
-BLOCKERS: [any issues, or "none"]
-IMPROVEMENT: [one concrete thing you will improve next]
+CONTAINER: [container name or ID]
+REPO: [gastown-publish/<name>]
+AGENTS: [count] — [list names]
+METRICS:
+  beads_closed: [number]
+  issues_open: [number]
+  commits_last_hour: [number]
+  PRs_merged: [number]
+  PRs_open: [number]
+  tests_passing: [number or "unknown"]
+WORK_SUMMARY: [2-3 bullet points with numbers — commits, PRs, issues, lines changed. If idle, state why and what you SHOULD be doing]
+BLOCKERS: [specific technical blocker, or "clear"]
+GOAL_NEXT_HOUR: [one specific, measurable deliverable you will complete]
+PROJECT_GOAL: [the ultimate purpose of your assigned repo in one sentence]
+IMPROVEMENT_PLAN:
+  1. [concrete process/quality improvement]
+  2. [concrete speed improvement]
+  3. [concrete reliability improvement]
 
-Keep it under 10 lines. Do not add extra commentary."""
+Do NOT say "none", "n/a", or "idle" without explanation. If you have no work, inspect your repo and find something to do."""
 
 async def main():
     client = TelegramClient(SESSION, API_ID, API_HASH)

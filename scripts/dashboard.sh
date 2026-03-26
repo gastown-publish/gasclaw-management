@@ -24,6 +24,10 @@ else
     BEADS_CLASS="fail"
 fi
 
+# Get uptime
+UPTIME=$(cat /proc/uptime | awk '{printf "%.1f days", $1/86400}')
+[ -z "$UPTIME" ] && UPTIME="unknown"
+
 [ -z "$DISK_AVAIL" ] && DISK_AVAIL="N/A"
 [ -z "$GATEWAY" ] && GATEWAY="unknown"
 [ -z "$GIT_STATUS" ] && GIT_STATUS="unknown"
@@ -65,6 +69,10 @@ cat <<EOF
     <div class="card">
         <h2>Beads</h2>
         <div class="metric $BEADS_CLASS">$BEADS_COUNT</div>
+    </div>
+    <div class="card">
+        <h2>Uptime</h2>
+        <div class="metric">$UPTIME</div>
     </div>
     <p><small>Updated: $TIMESTAMP</small></p>
 </body>

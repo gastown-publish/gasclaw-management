@@ -1,11 +1,30 @@
 #!/bin/bash
 # Dashboard - serves simple HTML metrics dashboard
-# Usage: ./dashboard.sh [--serve]
-# Or just generate: ./dashboard.sh > /tmp/dashboard.html
+# Usage: ./dashboard.sh
 
+# Source metrics
 . "$(dirname "$0")/resource-metrics.sh" >/dev/null 2>&1
 
-METRICS=$(cat /tmp/gasclaw-metrics.json 2>/dev/null || echo '{}')
+# Parse JSON without jq (use grep/sed)
+METRICS_FILE="/tmp/gasclaw-metrics.json"
+if [ -f "$METRICS_FILE" ]; then
+    DISK_AVAIL=$(grep '"avail_gb"' "$METRICS_FILE" | sed 's/.*: *\([0-9]*\).*/\1/')
+    GATEWAY=$(grep '"gateway"' "$METRICS_FILE" | sed 's/.*": *"\([^"]*\)".*/\1/')
+    GIT_STATUS=$(grep '"status"' "$METRICS_FILE" | grep -v gateway | sed 's/.*": *"\([^"]*\)".*/\1/')
+    TIMESTAMP=$(grep '"timestamp"' "$METRICS_FILE" | sed 's/.*": *"\([^"]*\)".*/\1/')
+else
+    DISK_AVAIL="N/A"
+    GATEWAY="unknown"
+    GIT_STATUS="unknown"
+    TIMESTAMP="never"
+fi
+
+[ -z "$DISK_AVAIL" ] && DISK_AVAIL="N/A"
+[ -z "$GATEWAY" ] && GATEWAY="unknown"
+[ -z "$GIT_STATUS" ] && GIT_STATUS="unknown"
+
+GATEWAY_CLASS="ok"
+[ "$GATEWAY" != "healthy" ] && GATEWAY_CLASS="fail"
 
 # Generate HTML
 cat <<EOF
@@ -27,19 +46,19 @@ cat <<EOF
     <h1>🚀 Gasclaw Platform Dashboard</h1>
     <div class="card">
         <h2>Disk</h2>
-        <div class="metric">$(echo "$METRICS" | jq -r '.disk.avail_gb // "N/A"') GB available</div>
+        <div class="metric">${DISK_AVAIL} GB available</div>
     </div>
     <div class="card">
         <h2>Services</h2>
-        <div class="metric $(echo "$METRICS" | jq -r '.services.gateway == "healthy" | if . then "ok" else "fail" end')">
-            Gateway: $(echo "$METRICS" | jq -r '.services.gateway // "unknown"')
+        <div class="metric $GATEWAY_CLASS">
+            Gateway: $GATEWAY
         </div>
     </div>
     <div class="card">
         <h2>Git</h2>
-        <div class="metric">$(echo "$METRICS" | jq -r '.git.status // "unknown"')</div>
+        <div class="metric">$GIT_STATUS</div>
     </div>
-    <p><small>Updated: $(echo "$METRICS" | jq -r '.timestamp // "never"')</small></p>
+    <p><small>Updated: $TIMESTAMP</small></p>
 </body>
 </html>
 EOF

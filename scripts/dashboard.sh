@@ -93,6 +93,7 @@ cat <<EOF
         <div class="metric">${COMMITS_AHEAD} commits ahead</div>
     </div>
     <p><small>Updated: $LAST_CHECK ($TIMESTAMP)</small></p>
+    <p><small><a href="./health-check.sh" style="color:#60a5fa;">Run Health Check</a> | <a href="./resource-metrics.sh" style="color:#60a5fa;">Metrics JSON</a></small></p>
 </body>
 </html>
 EOF

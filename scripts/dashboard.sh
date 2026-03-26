@@ -50,7 +50,8 @@ cat <<EOF
     <title>Gasclaw Dashboard</title>
     <meta http-equiv="refresh" content="30">
     <style>
-        body { font-family: -apple-system, sans-serif; margin: 40px; background: #1a1a2e; color: #eee; }
+        body { font-family: -apple-system, sans-serif; margin: 20px; background: #1a1a2e; color: #eee; }
+        @media (max-width: 600px) { body { margin: 10px; } .card { padding: 10px; } .metric { font-size: 18px; } h1 { font-size: 20px; } }
         .card { background: #16213e; padding: 20px; margin: 10px 0; border-radius: 8px; }
         .ok { color: #4ade80; }
         .fail { color: #f87171; }

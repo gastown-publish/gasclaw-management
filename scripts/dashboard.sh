@@ -4,6 +4,9 @@
 METRICS_FILE="/tmp/gasclaw-metrics.json"
 if [ -f "$METRICS_FILE" ]; then
     DISK_AVAIL=$(grep 'avail_gb' "$METRICS_FILE" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    DISK_USED=$(grep used_gb "$METRICS_FILE" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    DISK_TOTAL=$(grep total_gb "$METRICS_FILE" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
+    DISK_PERC=$((DISK_USED * 100 / DISK_TOTAL))
     GATEWAY=$(grep '"gateway"' "$METRICS_FILE" | sed 's/.*gateway.*: *"\([^"]*\)".*/\1/')
     GIT_STATUS=$(grep '"status"' "$METRICS_FILE" | head -1 | sed 's/.*status.*: *"\([^"]*\)".*/\1/')
     TIMESTAMP=$(grep 'timestamp' "$METRICS_FILE" | sed 's/.*timestamp.*: *"\([^"]*\)".*/\1/')
@@ -58,7 +61,7 @@ cat <<EOF
     <h1>🚀 Gasclaw Platform Dashboard</h1>
     <div class="card">
         <h2>Disk</h2>
-        <div class="metric">${DISK_AVAIL} GB available</div>
+        <div class="metric">${DISK_PERC}% used (${DISK_USED}GB / ${DISK_TOTAL}GB)</div>
     </div>
     <div class="card">
         <h2>Services</h2>

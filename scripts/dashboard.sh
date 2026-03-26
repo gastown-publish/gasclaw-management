@@ -58,7 +58,7 @@ cat <<EOF
     </style>
 </head>
 <body>
-    <h1>🚀 Gasclaw Platform Dashboard</h1>
+    <h1>🚀 Gasclaw Platform Dashboard <small>$(hostname)</small></h1>
     <div class="card">
         <h2>Disk</h2>
         <div class="metric">${DISK_PERC}% used (${DISK_USED}GB / ${DISK_TOTAL}GB)</div>

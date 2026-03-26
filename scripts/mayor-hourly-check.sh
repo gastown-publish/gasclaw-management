@@ -27,6 +27,10 @@ MINIMAX_CI=$(gh run list --repo gastown-publish/minimax --limit 1 --json status,
 GASSKILL_CONTEXT=$(cd /home/nic/gasclaw-workspace/gasskill 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "no recent commits")
 GASSKILL_ISSUES=$(gh issue list --repo gastown-publish/gasskill --limit 5 --json number,title 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f'#{i[\"number\"]}: {i[\"title\"]}') for i in d]" 2>/dev/null || echo "unable to fetch")
 
+CONTEXT_CONTEXT=$(cd /home/nic/gasclaw-workspace/context-hub 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "no recent commits")
+CONTEXT_ISSUES=$(gh issue list --repo gastown-publish/context-hub --limit 5 --json number,title 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f'#{i[\"number\"]}: {i[\"title\"]}') for i in d]" 2>/dev/null || echo "unable to fetch")
+CONTEXT_GW=$(docker exec gasclaw-context bash -c "curl -sf http://localhost:18797/health 2>/dev/null" 2>/dev/null && echo "healthy" || echo "down")
+
 MGMT_CONTEXT=$(cd /home/nic/gasclaw-workspace/gasclaw-management 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "no recent commits")
 MGMT_BEADS=$(cd /home/nic/gasclaw-workspace/gasclaw-management && bd ready 2>/dev/null | head -10 || echo "unable to fetch")
 
@@ -113,7 +117,10 @@ CONTEXT FROM YOUR REPO:
 - Open beads: $MGMT_BEADS
 - vLLM: HTTP $VLLM_STATUS | LiteLLM: HTTP $LITELLM_STATUS
 
-PLATFORM STATUS: 4 containers running, 4 bots active, watchdog cron every 5min.
+PLATFORM STATUS: 5 containers running (4 with Telegram bots + gasclaw-context without bot), watchdog cron every 5min.
+- gasclaw-context gateway: $CONTEXT_GW
+- context-hub issues: $CONTEXT_ISSUES
+- context-hub commits: $CONTEXT_CONTEXT
 
 INSTRUCTIONS: As the platform manager, report:
 1. STATUS: online/degraded/error (for the WHOLE platform, not just your container)
@@ -193,10 +200,20 @@ async def main():
         if not found:
             print(f"❌ {info['label']}: NO REPLY\n")
 
-    print(f"=== {passed}/4 correct bots ===")
+    print(f"=== {passed}/4 Telegram bots correct ===")
     await client.disconnect()
 
 asyncio.run(main())
 PYEOF
 
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] === MAYOR HOURLY CHECK DONE ==="
+# ── Step 4: Check gasclaw-context via docker exec (no Telegram bot yet) ──
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Step 4: Checking gasclaw-context (no Telegram — via docker exec)..."
+CONTEXT_REPLY=$(docker exec gasclaw-context bash -c "export MOONSHOT_API_KEY=sk-9vMJQmXKcQHjP4pFviqsxA; openclaw agent --local --agent main --message 'Report: STATUS, REPO, AGENTS count, GOAL_NEXT_HOUR, one IMPROVEMENT. Use numbers.' 2>&1 | tail -1" 2>/dev/null)
+if [ -n "$CONTEXT_REPLY" ] && ! echo "$CONTEXT_REPLY" | grep -qi "error\|fail"; then
+  echo "✅ gasclaw-context: $CONTEXT_REPLY"
+else
+  echo "❌ gasclaw-context: ${CONTEXT_REPLY:-NO RESPONSE}"
+fi
+
+echo ""
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] === MAYOR HOURLY CHECK DONE (4 Telegram + 1 docker exec = 5 containers) ==="

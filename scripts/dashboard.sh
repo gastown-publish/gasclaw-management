@@ -1,6 +1,5 @@
 #!/bin/bash
 # Dashboard - serves simple HTML metrics dashboard
-# Usage: ./dashboard.sh
 
 METRICS_FILE="/tmp/gasclaw-metrics.json"
 if [ -f "$METRICS_FILE" ]; then
@@ -13,6 +12,16 @@ else
     GATEWAY="unknown"
     GIT_STATUS="unknown"
     TIMESTAMP="never"
+fi
+
+# Get beads status
+BEADS_STATUS=$(bd list 2>&1 | head -1)
+if echo "$BEADS_STATUS" | grep -q "No issues"; then
+    BEADS_COUNT="0 issues"
+    BEADS_CLASS="ok"
+else
+    BEADS_COUNT="$BEADS_STATUS"
+    BEADS_CLASS="fail"
 fi
 
 [ -z "$DISK_AVAIL" ] && DISK_AVAIL="N/A"
@@ -52,6 +61,10 @@ cat <<EOF
     <div class="card">
         <h2>Git</h2>
         <div class="metric">$GIT_STATUS</div>
+    </div>
+    <div class="card">
+        <h2>Beads</h2>
+        <div class="metric $BEADS_CLASS">$BEADS_COUNT</div>
     </div>
     <p><small>Updated: $TIMESTAMP</small></p>
 </body>

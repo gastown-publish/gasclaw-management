@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Mayor-driven hourly check: gather context, craft per-bot prompts, send, inspect.
-# The mgmt mayor (main agent) controls this process via Telethon.
+# Mayor-driven hourly conversation: gather context, have a REAL conversation with each bot.
+# Not a nudge — a multi-turn dialogue where the manager asks, follows up, and challenges.
 set -euo pipefail
 
 LOCK=/tmp/gastown-mayor-hourly.lock
@@ -11,209 +11,265 @@ PYTHON="/home/nic/gasclaw-workspace/telethon/.venv/bin/python3"
 SESSION="/home/nic/gasclaw-workspace/telegram-test/tg_test_session.session"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
-echo "[$TIMESTAMP] === MAYOR HOURLY CHECK START ==="
+echo "[$TIMESTAMP] === MAYOR HOURLY CONVERSATION START ==="
 
-# ── Step 1: Gather context from each repo ──
+# ── Step 1: Gather context ──
 echo "[$TIMESTAMP] Step 1: Gathering context..."
 
-GASCLAW_CONTEXT=$(cd /home/nic/gasclaw-workspace/gasclaw 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "no recent commits")
-GASCLAW_ISSUES=$(gh issue list --repo gastown-publish/gasclaw --limit 5 --json number,title 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f'#{i[\"number\"]}: {i[\"title\"]}') for i in d]" 2>/dev/null || echo "unable to fetch")
-GASCLAW_CI=$(gh run list --repo gastown-publish/gasclaw --limit 1 --json status,conclusion 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['conclusion'] if d else 'unknown')" 2>/dev/null || echo "unknown")
+GASCLAW_COMMITS=$(cd /home/nic/gasclaw-workspace/gasclaw 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "none")
+GASCLAW_ISSUES=$(gh issue list --repo gastown-publish/gasclaw --limit 5 --json number,title -q '.[].title' 2>/dev/null | head -5 || echo "unknown")
+GASCLAW_CI=$(gh run list --repo gastown-publish/gasclaw --limit 1 --json conclusion -q '.[0].conclusion' 2>/dev/null || echo "unknown")
 
-MINIMAX_CONTEXT=$(cd /home/nic/data/models/MiniMax-M2.5 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "no recent commits")
-MINIMAX_ISSUES=$(gh issue list --repo gastown-publish/minimax --limit 5 --json number,title 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f'#{i[\"number\"]}: {i[\"title\"]}') for i in d]" 2>/dev/null || echo "unable to fetch")
-MINIMAX_CI=$(gh run list --repo gastown-publish/minimax --limit 1 --json status,conclusion 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['conclusion'] if d else 'unknown')" 2>/dev/null || echo "unknown")
+MINIMAX_COMMITS=$(cd /home/nic/data/models/MiniMax-M2.5 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "none")
+MINIMAX_ISSUES_COUNT=$(gh issue list --repo gastown-publish/minimax --json number 2>/dev/null | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "?")
+MINIMAX_ISSUES=$(gh issue list --repo gastown-publish/minimax --limit 5 --json number,title -q '.[] | "#\(.number): \(.title)"' 2>/dev/null | head -5 || echo "unknown")
+MINIMAX_CI=$(gh run list --repo gastown-publish/minimax --limit 1 --json conclusion -q '.[0].conclusion' 2>/dev/null || echo "unknown")
 
-GASSKILL_CONTEXT=$(cd /home/nic/gasclaw-workspace/gasskill 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "no recent commits")
-GASSKILL_ISSUES=$(gh issue list --repo gastown-publish/gasskill --limit 5 --json number,title 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f'#{i[\"number\"]}: {i[\"title\"]}') for i in d]" 2>/dev/null || echo "unable to fetch")
+GASSKILL_COMMITS=$(cd /home/nic/gasclaw-workspace/gasskill 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "none")
+GASSKILL_ISSUES=$(gh issue list --repo gastown-publish/gasskill --limit 5 --json number,title -q '.[] | "#\(.number): \(.title)"' 2>/dev/null | head -5 || echo "none")
 
-CONTEXT_CONTEXT=$(cd /home/nic/gasclaw-workspace/context-hub 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "no recent commits")
-CONTEXT_ISSUES=$(gh issue list --repo gastown-publish/context-hub --limit 5 --json number,title 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); [print(f'#{i[\"number\"]}: {i[\"title\"]}') for i in d]" 2>/dev/null || echo "unable to fetch")
-CONTEXT_GW=$(docker exec gasclaw-context bash -c "curl -sf http://localhost:18797/health 2>/dev/null" 2>/dev/null && echo "healthy" || echo "down")
+CONTEXT_COMMITS=$(cd /home/nic/gasclaw-workspace/context-hub 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "none")
+CONTEXT_ISSUES=$(gh issue list --repo gastown-publish/context-hub --limit 5 --json number,title -q '.[] | "#\(.number): \(.title)"' 2>/dev/null | head -5 || echo "none")
 
-MGMT_CONTEXT=$(cd /home/nic/gasclaw-workspace/gasclaw-management 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "no recent commits")
-MGMT_BEADS=$(cd /home/nic/gasclaw-workspace/gasclaw-management && bd ready 2>/dev/null | head -10 || echo "unable to fetch")
+MGMT_COMMITS=$(cd /home/nic/gasclaw-workspace/gasclaw-management 2>/dev/null && git log --oneline --since="1 hour ago" 2>/dev/null | head -5 || echo "none")
+MGMT_BEADS=$(cd /home/nic/gasclaw-workspace/gasclaw-management && bd ready 2>/dev/null | head -10 || echo "unknown")
 
-VLLM_STATUS=$(curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:8080/health 2>/dev/null)
-LITELLM_STATUS=$(curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:4000/health 2>/dev/null)
+VLLM_S=$(curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:8080/health 2>/dev/null)
+LITELLM_S=$(curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:4000/health 2>/dev/null)
 
-echo "  Context gathered."
+echo "  Done."
 
-# ── Step 2: Send context-aware prompts ──
-echo "[$TIMESTAMP] Step 2: Sending context-aware prompts..."
+# ── Step 2: Conversation with each bot (3 turns: opening → follow-up → challenge) ──
+echo "[$TIMESTAMP] Step 2: Starting conversations..."
 
 $PYTHON << PYEOF
-import asyncio, os
+import asyncio, time
 from telethon import TelegramClient
 
 SESSION = "$SESSION"
 GROUP_ID = -1003810709807
 
-PROMPTS = {
-    918: """[Mayor hourly check — $TIMESTAMP]
+BOTS = {
+    918: {"label": "gasclaw", "bot": "gasclaw_master_bot"},
+    919: {"label": "minimax", "bot": "minimax_gastown_publish_bot"},
+    920: {"label": "gasskill", "bot": "gasskill_agent_bot"},
+    921: {"label": "mgmt", "bot": "gasclaw_mgmt_bot"},
+    1425: {"label": "context", "bot": "gascontext_bot"},
+}
 
-You are the gasclaw-dev mayor managing gastown-publish/gasclaw.
+# ── Turn 1: Opening — status + 10 improvements ──
+TURN1 = {
+    918: """[Mayor — $TIMESTAMP]
 
-CONTEXT FROM YOUR REPO:
-- Recent commits: $GASCLAW_CONTEXT
+I'm the platform manager doing the hourly review. Here's what I see for your repo:
+
+- Commits last hour: $GASCLAW_COMMITS
 - Open issues: $GASCLAW_ISSUES
-- CI status: $GASCLAW_CI
+- CI: $GASCLAW_CI
 
-INSTRUCTIONS: Based on this real context, report:
-1. STATUS: online/degraded/error
-2. METRICS: commits_last_hour, issues_open, CI_status (use actual numbers above)
-3. WORK_DONE: what you accomplished (reference specific commits/PRs/issues)
-4. GOAL_NEXT_HOUR: pick ONE open issue or task and commit to completing it
-5. IMPROVEMENT_PLAN: 3 specific things — one for code quality, one for speed, one for reliability
-6. PROJECT_VISION: what gastown-publish/gasclaw should become in 1 month
+I need you to do 3 things RIGHT NOW:
 
-Do NOT say "none" or "idle". If no commits, explain why and what you will do NOW.""",
+1. Give me your honest STATUS (online/degraded/error) and explain why.
+2. List 10 specific improvements you would make to gastown-publish/gasclaw. Not generic — reference actual code, actual issues, actual architecture. For each one, explain WHY it matters and WHAT the impact would be.
+3. What is the single most important thing you should do in the next hour? Not "review issues" — give me a specific commit you will make.
 
-    919: """[Mayor hourly check — $TIMESTAMP]
+I will follow up on your answers. Do not be vague.""",
 
-You are the minimax mayor managing gastown-publish/minimax.
+    919: """[Mayor — $TIMESTAMP]
 
-CONTEXT FROM YOUR REPO:
-- Recent commits: $MINIMAX_CONTEXT
-- Open issues: $MINIMAX_ISSUES
-- CI status: $MINIMAX_CI
-- vLLM: HTTP $VLLM_STATUS | LiteLLM: HTTP $LITELLM_STATUS
+Hourly review for minimax. Here's the real data:
 
-INSTRUCTIONS: Based on this real context, report:
-1. STATUS: online/degraded/error
-2. METRICS: commits_last_hour, issues_open, CI_status, vllm_status, litellm_status
-3. WORK_DONE: what you accomplished (reference specific commits/PRs/issues)
-4. TOP_3_ISSUES: pick 3 most important open issues and your plan for each
-5. GOAL_NEXT_HOUR: pick ONE issue and commit to resolving it
-6. IMPROVEMENT_PLAN: 3 specific things — one for security, one for performance, one for UX
-7. PROJECT_VISION: what gastown-publish/minimax should become in 1 month
+- Commits last hour: $MINIMAX_COMMITS
+- Open issues: $MINIMAX_ISSUES_COUNT total. Top 5: $MINIMAX_ISSUES
+- CI: $MINIMAX_CI
+- vLLM: HTTP $VLLM_S | LiteLLM: HTTP $LITELLM_S
 
-Do NOT say "none" or "idle". 34 open issues means there is ALWAYS work to do.""",
+I need HONEST answers:
 
-    920: """[Mayor hourly check — $TIMESTAMP]
+1. STATUS and why. If everything is "fine" but you have $MINIMAX_ISSUES_COUNT open issues, that's not fine — explain.
+2. List 10 specific improvements for gastown-publish/minimax. For each: what file/component, what's wrong, what you'd change, and the user impact. I want specifics — not "improve documentation".
+3. Of those 10, rank them by impact. Which 3 would you do THIS WEEK?
+4. What will you commit to delivering in the next hour? Be specific — file name, what changes.
 
-You are the gasskill mayor managing gastown-publish/gasskill.
+This is a conversation, not a form. I'll push back if your answers are weak.""",
 
-CONTEXT FROM YOUR REPO:
-- Recent commits: $GASSKILL_CONTEXT
+    920: """[Mayor — $TIMESTAMP]
+
+Hourly review for gasskill. Data:
+
+- Commits last hour: $GASSKILL_COMMITS
 - Open issues: $GASSKILL_ISSUES
 
-INSTRUCTIONS: Based on this real context, report:
-1. STATUS: online/degraded/error
-2. METRICS: commits_last_hour, issues_open, skills_count
-3. WORK_DONE: what you accomplished (reference specific commits/PRs)
-4. GOAL_NEXT_HOUR: pick ONE concrete deliverable
-5. IMPROVEMENT_PLAN: 3 specific things — one for skill quality, one for testing, one for documentation
-6. PROJECT_VISION: what gastown-publish/gasskill should become in 1 month
+I need you to think hard:
 
-If repo not cloned, your FIRST goal is to clone it and inspect the codebase.""",
+1. STATUS — and if you say "online" but have done nothing, explain why.
+2. List 10 improvements for gastown-publish/gasskill. Skills need to be high quality, well tested, and well documented. What's missing? What's broken? What would make skills 10x more useful?
+3. For each improvement, explain WHO benefits (the agent? the user? the platform?) and HOW MUCH.
+4. What specific deliverable will you produce in the next hour?
 
-    921: """[Mayor hourly check — $TIMESTAMP]
+If the repo isn't cloned yet, that IS your first deliverable. Tell me the plan.""",
 
-You are the mgmt mayor managing gastown-publish/gasclaw-management.
+    921: """[Mayor — $TIMESTAMP]
 
-CONTEXT FROM YOUR REPO:
-- Recent commits: $MGMT_CONTEXT
+Self-review time. You're the platform manager. Here's your data:
+
+- Your commits: $MGMT_COMMITS
 - Open beads: $MGMT_BEADS
-- vLLM: HTTP $VLLM_STATUS | LiteLLM: HTTP $LITELLM_STATUS
+- vLLM: HTTP $VLLM_S | LiteLLM: HTTP $LITELLM_S
+- 5 containers running, 5 bots active
 
-PLATFORM STATUS: 5 containers running (4 with Telegram bots + gasclaw-context without bot), watchdog cron every 5min.
-- gasclaw-context gateway: $CONTEXT_GW
-- context-hub issues: $CONTEXT_ISSUES
-- context-hub commits: $CONTEXT_CONTEXT
+Be BRUTALLY honest with yourself:
 
-INSTRUCTIONS: As the platform manager, report:
-1. STATUS: online/degraded/error (for the WHOLE platform, not just your container)
-2. PLATFORM_METRICS: containers_up, gateways_healthy, agents_active, services_up
-3. WORK_DONE: what you coordinated across the platform
-4. OPEN_BEADS: list the top 3 and your plan for each
-5. 10_IMPROVEMENTS: list 10 concrete things to improve across the entire Gasclaw platform
-6. GOAL_NEXT_HOUR: the single most impactful thing to do
-7. PLATFORM_VISION: what the Gasclaw platform should become in 1 month
+1. PLATFORM STATUS — not just "online". Grade each: containers, gateways, agents, services, Telegram, CI, documentation, monitoring. Use A/B/C/D/F.
+2. List 10 improvements for the ENTIRE Gasclaw platform. Think about: reliability, monitoring, automation, developer experience, documentation, security, performance, cost, scalability, user experience.
+3. For each improvement, estimate: effort (hours), impact (high/medium/low), and who should do it (which container's agent).
+4. What is the #1 thing that would make this platform PRODUCTION READY? Be specific.
+5. What will YOU personally deliver in the next hour?
 
-You are the manager. Think big. Be specific. Use numbers.""",
+You are the manager. I expect manager-quality thinking.""",
+
+    1425: """[Mayor — $TIMESTAMP]
+
+Hourly review for context-hub. Data:
+
+- Commits last hour: $CONTEXT_COMMITS
+- Open issues: $CONTEXT_ISSUES
+
+This is a fresh fork of andrewyng/context-hub with gashub CLI + MCP server.
+
+1. STATUS — have you inspected the codebase yet? What did you find?
+2. List 10 improvements for gastown-publish/context-hub. Think about: gashub CLI usability, MCP server reliability, content quality, documentation, testing, CI/CD, npm publishing, Gasclaw integration.
+3. For each, explain the user benefit and estimated effort.
+4. What will you deliver in the next hour?
+
+This repo has real users (all 5 Gasclaw containers use gashub). Quality matters.""",
 }
+
+# ── Turn 2: Follow-up (sent after reading Turn 1 responses) ──
+TURN2_TEMPLATE = """Good start, but I need more depth on your improvements list.
+
+Pick your top 3 improvements and for EACH one:
+- What EXACTLY would you change? (file paths, function names, config keys)
+- What's the current behavior vs desired behavior?
+- How would you TEST that the improvement works?
+- What could go wrong during implementation?
+
+Also: you mentioned your next-hour goal. Break it into 3 concrete steps with time estimates. I want to see you've actually thought it through, not just said something that sounds good."""
+
+# ── Turn 3: Challenge (sent after reading Turn 2 responses) ──
+TURN3_TEMPLATE = """Final question for this hour:
+
+1. What is ONE thing you've been AVOIDING or POSTPONING? Every project has something uncomfortable. Name it.
+2. If I gave you 10x the resources (more agents, more compute), what would you do DIFFERENTLY? This tells me if you're thinking big enough.
+3. Grade yourself A-F on this hour's performance. Justify the grade.
+
+Be honest. I'll use your answers to prioritize next hour's work across the whole platform."""
 
 async def main():
     client = TelegramClient(SESSION, 29672461, "0e0b535e8e0db252f86f0a6a8de3624e")
     await client.start()
     group = await client.get_entity(GROUP_ID)
-    for tid, prompt in PROMPTS.items():
+
+    # ── TURN 1: Send opening to all bots ──
+    print("Turn 1: Sending opening questions...")
+    for tid, prompt in TURN1.items():
         await client.send_message(group, prompt, reply_to=tid)
-        print(f"  sent to topic {tid}")
-    await client.disconnect()
+        print(f"  → {BOTS[tid]['label']} (topic {tid})")
 
-asyncio.run(main())
-PYEOF
+    print("Waiting 120s for Turn 1 responses...")
+    await asyncio.sleep(120)
 
-echo "[$TIMESTAMP] Prompts sent. Waiting 90s for responses..."
-sleep 90
-
-# ── Step 3: Inspect responses ──
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] Step 3: Inspecting responses..."
-
-$PYTHON << 'PYEOF'
-import asyncio, time
-from telethon import TelegramClient
-
-SESSION = "/home/nic/gasclaw-workspace/telegram-test/tg_test_session.session"
-GROUP_ID = -1003810709807
-TOPICS = {
-    918: {"bot": "gasclaw_master_bot", "label": "gasclaw"},
-    919: {"bot": "minimax_gastown_publish_bot", "label": "minimax"},
-    920: {"bot": "gasskill_agent_bot", "label": "gasskill"},
-    921: {"bot": "gasclaw_mgmt_bot", "label": "mgmt"},
-}
-
-async def main():
-    client = TelegramClient(SESSION, 29672461, "0e0b535e8e0db252f86f0a6a8de3624e")
-    await client.start()
-    group = await client.get_entity(GROUP_ID)
-    cutoff = time.time() - 180
-    passed = 0
-
-    for tid, info in TOPICS.items():
-        found = False
-        async for msg in client.iter_messages(group, reply_to=tid, limit=5):
+    # ── Read Turn 1 responses ──
+    print("\nTurn 1 responses:")
+    cutoff = time.time() - 150
+    responding = []
+    for tid, info in BOTS.items():
+        async for msg in client.iter_messages(group, reply_to=tid, limit=3):
             if msg.date.timestamp() < cutoff:
                 continue
             is_bot = getattr(msg.sender, "bot", False)
             username = getattr(msg.sender, "username", "") if msg.sender else ""
-            text = msg.text or ""
-            if not is_bot:
-                continue
-            found = True
-            correct = (username == info["bot"])
-            if correct:
-                passed += 1
-                lines = len(text.split("\n"))
-                has_numbers = any(c.isdigit() for c in text)
-                print(f"{'✅' if lines > 5 and has_numbers else '⚠️'} {info['label']}: @{username} ({lines} lines)")
-                for line in text.split("\n")[:15]:
-                    print(f"   {line.strip()}")
-                if lines > 15:
-                    print(f"   ... ({lines-15} more lines)")
-            else:
-                print(f"❌ {info['label']}: WRONG BOT @{username}")
-            print()
-            break
-        if not found:
-            print(f"❌ {info['label']}: NO REPLY\n")
+            if is_bot and username == info["bot"]:
+                lines = len((msg.text or "").split("\n"))
+                print(f"  ✅ {info['label']}: @{username} ({lines} lines)")
+                responding.append(tid)
+                break
+        else:
+            print(f"  ❌ {info['label']}: no reply yet")
 
-    print(f"=== {passed}/4 Telegram bots correct ===")
+    # ── TURN 2: Follow up with bots that responded ──
+    if responding:
+        print(f"\nTurn 2: Following up with {len(responding)} bots...")
+        for tid in responding:
+            await client.send_message(group, TURN2_TEMPLATE, reply_to=tid)
+            print(f"  → {BOTS[tid]['label']}")
+
+        print("Waiting 120s for Turn 2 responses...")
+        await asyncio.sleep(120)
+
+        # Read Turn 2
+        print("\nTurn 2 responses:")
+        cutoff2 = time.time() - 150
+        turn2_ok = []
+        for tid in responding:
+            info = BOTS[tid]
+            async for msg in client.iter_messages(group, reply_to=tid, limit=3):
+                if msg.date.timestamp() < cutoff2:
+                    continue
+                is_bot = getattr(msg.sender, "bot", False)
+                username = getattr(msg.sender, "username", "") if msg.sender else ""
+                if is_bot and username == info["bot"]:
+                    lines = len((msg.text or "").split("\n"))
+                    print(f"  ✅ {info['label']}: ({lines} lines)")
+                    turn2_ok.append(tid)
+                    break
+            else:
+                print(f"  ⏳ {info['label']}: still thinking...")
+
+        # ── TURN 3: Challenge ──
+        if turn2_ok:
+            print(f"\nTurn 3: Challenging {len(turn2_ok)} bots...")
+            for tid in turn2_ok:
+                await client.send_message(group, TURN3_TEMPLATE, reply_to=tid)
+                print(f"  → {BOTS[tid]['label']}")
+
+            print("Waiting 90s for Turn 3 responses...")
+            await asyncio.sleep(90)
+
+            # Read Turn 3
+            print("\nTurn 3 responses:")
+            cutoff3 = time.time() - 120
+            for tid in turn2_ok:
+                info = BOTS[tid]
+                async for msg in client.iter_messages(group, reply_to=tid, limit=3):
+                    if msg.date.timestamp() < cutoff3:
+                        continue
+                    is_bot = getattr(msg.sender, "bot", False)
+                    username = getattr(msg.sender, "username", "") if msg.sender else ""
+                    if is_bot and username == info["bot"]:
+                        lines = len((msg.text or "").split("\n"))
+                        text = msg.text or ""
+                        # Look for self-grade
+                        grade = "?"
+                        for line in text.split("\n"):
+                            if "grade" in line.lower() and any(g in line for g in ["A","B","C","D","F"]):
+                                grade = line.strip()[:60]
+                                break
+                        print(f"  ✅ {info['label']}: ({lines} lines) — {grade}")
+                        break
+                else:
+                    print(f"  ⏳ {info['label']}: still thinking...")
+
+    # ── Summary ──
+    print(f"\n=== CONVERSATION COMPLETE ===")
+    print(f"Turn 1: {len(responding)}/5 responded")
+    print(f"Turn 2: {len(turn2_ok) if responding else 0}/{len(responding)} elaborated")
+    print(f"Turn 3: challenged those who elaborated")
+    print(f"Total conversation: ~5.5 min across {len(BOTS)} topics")
+
     await client.disconnect()
 
 asyncio.run(main())
 PYEOF
 
-# ── Step 4: Check gasclaw-context via docker exec (no Telegram bot yet) ──
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] Step 4: Checking gasclaw-context (no Telegram — via docker exec)..."
-CONTEXT_REPLY=$(docker exec gasclaw-context bash -c "export MOONSHOT_API_KEY=sk-9vMJQmXKcQHjP4pFviqsxA; openclaw agent --local --agent main --message 'Report: STATUS, REPO, AGENTS count, GOAL_NEXT_HOUR, one IMPROVEMENT. Use numbers.' 2>&1 | tail -1" 2>/dev/null)
-if [ -n "$CONTEXT_REPLY" ] && ! echo "$CONTEXT_REPLY" | grep -qi "error\|fail"; then
-  echo "✅ gasclaw-context: $CONTEXT_REPLY"
-else
-  echo "❌ gasclaw-context: ${CONTEXT_REPLY:-NO RESPONSE}"
-fi
-
-echo ""
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] === MAYOR HOURLY CHECK DONE (4 Telegram + 1 docker exec = 5 containers) ==="
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] === MAYOR HOURLY CONVERSATION DONE ==="

@@ -50,7 +50,7 @@ cat <<EOF
 <head>
     <title>Gasclaw Dashboard</title>
     <meta http-equiv="refresh" content="30">
-    <script>let s=30;setInterval(()=>{document.getElementById('c').innerText=s},1e3);</script>
+    <script>let s=30;setInterval(()=>{document.getElementById('c').innerText=s},1e3);function tt(){document.body.style.background=document.body.style.background==='#eee'?'#1a1a2e':'#eee';document.body.style.color=document.body.style.color==='#000'?'#eee':'#000';}</script>
     <style>
         body { font-family: -apple-system, sans-serif; margin: 20px; background: #1a1a2e; color: #eee; }
         @media (max-width: 600px) { body { margin: 10px; } .card { padding: 10px; } .metric { font-size: 18px; } h1 { font-size: 20px; } }
@@ -96,7 +96,7 @@ cat <<EOF
         <div class="metric">${COMMITS_AHEAD} commits ahead</div>
     </div>
     <p><small>Updated: $LAST_CHECK ($TIMESTAMP)</small></p>
-    <p><button onclick="location.reload()">Refresh Now</button> | <a href="./health-check.sh" style="color:#60a5fa;">Run Health Check</a> | Refresh: <span id="c">30</span>s</p>
+    <p><button onclick="location.reload()">Refresh Now</button> <button onclick="tt()">Theme</button> | <a href="./health-check.sh" style="color:#60a5fa;">Run Health Check</a> | Refresh: <span id="c">30</span>s</p>
 </body>
 </html>
 EOF

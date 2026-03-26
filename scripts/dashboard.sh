@@ -35,6 +35,7 @@ fi
 UPTIME=$(cat /proc/uptime | awk '{printf "%.1f days", $1/86400}')
 LAST_CHECK=$(date '+%H:%M:%S')
 VERSION=$(grep lastTouchedVersion /root/.openclaw/openclaw.json 2>/dev/null | sed 's/.*": *"\([^"]*\)".*/\1/' || echo "unknown")
+GIT_COMMITS=$(git rev-list --count HEAD)
 [ -z "$UPTIME" ] && UPTIME="unknown"
 
 [ -z "$DISK_AVAIL" ] && DISK_AVAIL="N/A"
@@ -64,7 +65,7 @@ cat <<EOF
 </head>
 <body>
     <h1>🚀 Gasclaw <small>v$VERSION</small></h1>
-    <p><small>$(hostname)</small></p>
+    <p><small>$(hostname) | $GIT_COMMITS commits</small></p>
     <div class="card" style="background: #22c55e; color: #000; animation: pulse 2s infinite;">
         <div class="metric">✓ All Systems Operational<br><small>$(date '+%H:%M:%S')</small></div>
     </div>

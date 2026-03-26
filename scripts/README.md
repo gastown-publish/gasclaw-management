@@ -46,8 +46,19 @@ This directory contains automation scripts for the Gasclaw platform.
 
 ```bash
 # Health check every 5 minutes
-*/5 * * * * /workspace/gt/scripts/cron/health-check-cron.sh
+*/5 * * * * /workspace/gt/scripts/cron/health-check-cron.sh >> /var/log/gasclaw-health.log 2>&1
 
 # Log rotation daily at 2am
-0 2 * * * /workspace/gt/scripts/log-rotate.sh
+0 2 * * * /workspace/gt/scripts/log-rotate.sh >> /var/log/gasclaw-rotate.log 2>&1
+
+# Resource metrics every minute
+* * * * * /workspace/gt/scripts/resource-metrics.sh
+```
+
+## Environment Variables
+
+Set these for alerting:
+```bash
+export WEBHOOK_URL="https://hooks.slack.com/services/..."  # or Telegram webhook
+export ALERT_ON_FAIL=true
 ```

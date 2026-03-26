@@ -63,9 +63,10 @@ cat <<EOF
 <body>
     <h1>🚀 Gasclaw <small>v$VERSION</small></h1>
     <p><small>$(hostname)</small></p>
-    <div class="card" style="background: #22c55e; color: #000;">
+    <div class="card" style="background: #22c55e; color: #000; animation: pulse 2s infinite;">
         <div class="metric">✓ All Systems Operational</div>
     </div>
+    <style>@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }</style>
     <div class="card">
         <h2>Disk</h2>
         <div class="metric">${DISK_PERC}% used (${DISK_USED}GB / ${DISK_TOTAL}GB)</div>

@@ -32,11 +32,12 @@ That is the supported layout: **Telethon on host**, **OpenClaw bots in container
 Possible, but you must add **user-session** material to the container (not the bot token):
 
 - Install Python + `gastown-telethon` in the image (or `pip install` at build time).
-- **Bind-mount** a directory containing:
-  - `telethon/.env` (or inject env vars),
-  - the **`*.session`** file(s) for the **human** account.
-- Set `GASTOWN_TELETHON_ROOT` to that mount path and run `forum_health.sh` from **cron inside the container** or a small sidecar service.
+- **Bind-mount only** (no copying credentials into the image): a host directory with your **`*.session`** and an env file, mounted read-only if you prefer, e.g. `/run/telethon-secrets:ro`.
+- Set `TELETHON_CONTAINER_SESSION_PATH` / `TELETHON_ENV_FILE` to paths **inside** the container that match those mounts (see `gastown-publish/telethon` `docker-compose.yml`).
+- Set `GASTOWN_TELETHON_ROOT` to that mount path and run `forum_health.sh` from **cron inside the container** or use the **Telethon Docker** image next to mgmt (same bind-mount pattern).
 - Ensure **no second** cron on the host uses the **same** session file (otherwise SQLite “database is locked”).
+
+**Check both sides:** `scripts/verify_telegram_telethon_stack.sh` probes OpenClaw Telegram on `gasclaw-mgmt` and runs a Telethon Docker ping using host bind mounts only.
 
 This duplicates what the host already does; use it only if you have a policy that “everything must run in the mgmt container.”
 

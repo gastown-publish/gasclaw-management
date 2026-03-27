@@ -42,6 +42,7 @@ VERSION=$(grep lastTouchedVersion /root/.openclaw/openclaw.json 2>/dev/null | se
 GIT_COMMITS=$(git rev-list --count HEAD)
 LAST_PUSH=$(git log -1 --format=%ci origin/main | cut -d' ' -f1,2 | cut -d'+' -f1)
 LAST_AUTHOR=$(git log -1 --format="%an" origin/main)
+AGENT_SESSIONS=$(ls /root/.openclaw/sessions 2>/dev/null | wc -l)
 CPU_CORES=$(nproc)
 LOAD_AVG=$(cat /proc/loadavg | awk '{print $1","$2","$3}')
 NET_IFS=$(ls /sys/class/net | wc -l)
@@ -78,7 +79,7 @@ cat <<EOF
 </head>
 <body>
     <h1>🚀 Gasclaw <small>v$VERSION</small></h1>
-    <p><small>$(hostname) | $GIT_COMMITS commits | by $LAST_AUTHOR | $CPU_CORES cores | load: $LOAD_AVG | $NET_IFS net ifs | $PROCS procs | $TZ | $DISK_PARTS disks</small></p>
+    <p><small>$(hostname) | $GIT_COMMITS commits | by $LAST_AUTHOR | $AGENT_SESSIONS agents | $CPU_CORES cores | load: $LOAD_AVG | $NET_IFS net ifs | $PROCS procs | $TZ | $DISK_PARTS disks</small></p>
     <div class="card" style="background: #22c55e; color: #000; animation: pulse 2s infinite;">
         <div class="metric">✓ All Systems Operational<br><small>$(date '+%H:%M:%S')</small></div>
     </div>

@@ -38,6 +38,7 @@ VERSION=$(grep lastTouchedVersion /root/.openclaw/openclaw.json 2>/dev/null | se
 GIT_COMMITS=$(git rev-list --count HEAD)
 LAST_PUSH=$(git log -1 --format=%ci origin/main | cut -d' ' -f1,2 | cut -d'+' -f1)
 CPU_CORES=$(nproc)
+LOAD_AVG=$(cat /proc/loadavg | awk '{print $1","$2","$3}')
 [ -z "$UPTIME" ] && UPTIME="unknown"
 
 [ -z "$DISK_AVAIL" ] && DISK_AVAIL="N/A"
@@ -67,7 +68,7 @@ cat <<EOF
 </head>
 <body>
     <h1>🚀 Gasclaw <small>v$VERSION</small></h1>
-    <p><small>$(hostname) | $GIT_COMMITS commits | $CPU_CORES cores</small></p>
+    <p><small>$(hostname) | $GIT_COMMITS commits | $CPU_CORES cores | load: $LOAD_AVG</small></p>
     <div class="card" style="background: #22c55e; color: #000; animation: pulse 2s infinite;">
         <div class="metric">✓ All Systems Operational<br><small>$(date '+%H:%M:%S')</small></div>
     </div>

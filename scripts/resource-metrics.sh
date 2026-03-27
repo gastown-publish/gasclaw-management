@@ -21,7 +21,7 @@ else
 fi
 
 # Gateway health
-GATEWAY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:18798/health 2>/dev/null || echo "000")
+GATEWAY_STATUS=$(curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:18798/health 2>/dev/null || echo "000")
 if [ "$GATEWAY_STATUS" = "200" ]; then
     GATEWAY_HEALTH="healthy"
 else

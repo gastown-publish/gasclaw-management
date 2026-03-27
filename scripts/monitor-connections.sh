@@ -55,7 +55,7 @@ if [ "$VLLM_PROCS" -gt 8 ]; then  # 1 parent + 1 coordinator + 2 engine cores + 
 fi
 
 # Check LiteLLM health (use /health with auth or check if process is responding)
-HEALTH_STATUS=$(curl -s -H "Authorization: Bearer sk-1564f41cd82a7303e6e3eb15cedc15eb76d1a3f556d8b890" \
+HEALTH_STATUS=$(curl -s --max-time 5 -H "Authorization: Bearer sk-1564f41cd82a7303e6e3eb15cedc15eb76d1a3f556d8b890" \
     -o /dev/null -w "%{http_code}" http://localhost:4000/health 2>/dev/null || echo "000")
 if [ "$HEALTH_STATUS" != "200" ]; then
     log "ERROR: LiteLLM health check failed (HTTP $HEALTH_STATUS)"
@@ -75,7 +75,7 @@ if [ "$HEALTH_STATUS" != "200" ]; then
 fi
 
 # Check vLLM health
-VLLM_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health 2>/dev/null || echo "000")
+VLLM_HEALTH=$(curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:8080/health 2>/dev/null || echo "000")
 if [ "$VLLM_HEALTH" != "200" ]; then
     log "ERROR: vLLM health check failed (HTTP $VLLM_HEALTH)"
     

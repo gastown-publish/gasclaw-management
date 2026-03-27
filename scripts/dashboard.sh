@@ -37,6 +37,7 @@ LAST_CHECK=$(date '+%H:%M:%S')
 VERSION=$(grep lastTouchedVersion /root/.openclaw/openclaw.json 2>/dev/null | sed 's/.*": *"\([^"]*\)".*/\1/' || echo "unknown")
 GIT_COMMITS=$(git rev-list --count HEAD)
 LAST_PUSH=$(git log -1 --format=%ci origin/main | cut -d' ' -f1,2 | cut -d'+' -f1)
+CPU_CORES=$(nproc)
 [ -z "$UPTIME" ] && UPTIME="unknown"
 
 [ -z "$DISK_AVAIL" ] && DISK_AVAIL="N/A"

@@ -47,6 +47,7 @@ LOAD_AVG=$(cat /proc/loadavg | awk '{print $1","$2","$3}')
 NET_IFS=$(ls /sys/class/net | wc -l)
 PROCS=$(cat /proc/loadavg | awk '{print $4}' | cut -d'/' -f1)
 DISK_PARTS=$(lsblk -d -n 2>/dev/null | wc -l || echo "N/A")
+SHELL_INFO=$(ls -la /bin/sh 2>/dev/null | awk '{print $NF}' || echo "unknown")
 TZ=$(cat /etc/timezone 2>/dev/null || date +%Z)
 [ -z "$UPTIME" ] && UPTIME="unknown"
 
@@ -112,7 +113,7 @@ cat <<EOF
         <h2>Git</h2>
         <div class="metric">${COMMITS_AHEAD} commits ahead</div>
     </div>
-    <p><small>Updated: $LAST_CHECK ($TIMESTAMP)</small></p>
+    <p><small>Updated: $LAST_CHECK ($TIMESTAMP) | shell: $SHELL_INFO</small></p>
     <p><button onclick="location.reload()">Refresh Now</button> <button onclick="tt()">Theme</button> | <a href="./health-check.sh" style="color:#60a5fa;">Run Health Check</a> | Refresh: <span id="c">30</span>s</p>
 </body>
 </html>

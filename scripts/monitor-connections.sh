@@ -54,15 +54,23 @@ if [ "$VLLM_PROCS" -gt 8 ]; then  # 1 parent + 1 coordinator + 2 engine cores + 
     # Don't auto-kill vLLM as it's harder to restart safely
 fi
 
-# Check LiteLLM health
-HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/health 2>/dev/null || echo "000")
+# Check LiteLLM health (use /health with auth or check if process is responding)
+HEALTH_STATUS=$(curl -s -H "Authorization: Bearer sk-1564f41cd82a7303e6e3eb15cedc15eb76d1a3f556d8b890" \
+    -o /dev/null -w "%{http_code}" http://localhost:4000/health 2>/dev/null || echo "000")
 if [ "$HEALTH_STATUS" != "200" ]; then
     log "ERROR: LiteLLM health check failed (HTTP $HEALTH_STATUS)"
     
-    # Try to restart via systemd if available
-    if systemctl is-active --quiet litellm-minimax 2>/dev/null; then
-        log "Restarting litellm-minimax via systemd..."
-        sudo systemctl restart litellm-minimax
+    # Check if process is still running
+    LITELLM_PID=$(pgrep -o -f "litellm --config" 2>/dev/null)
+    if [ -z "$LITELLM_PID" ]; then
+        log "LiteLLM process not found!"
+        # Try to restart via systemd if available
+        if systemctl is-active --quiet litellm-minimax 2>/dev/null; then
+            log "Restarting litellm-minimax via systemd..."
+            sudo systemctl restart litellm-minimax
+        fi
+    else
+        log "LiteLLM process running (PID: $LITELLM_PID) but health check failed"
     fi
 fi
 

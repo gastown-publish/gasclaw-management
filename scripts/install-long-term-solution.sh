@@ -207,7 +207,7 @@ sleep 60
 
 # Check vLLM health
 for i in {1..10}; do
-    if curl -s http://localhost:8080/health > /dev/null 2>&1; then
+    if curl -s --max-time 5 http://localhost:8080/health > /dev/null 2>&1; then
         log_info "vLLM is healthy"
         break
     fi

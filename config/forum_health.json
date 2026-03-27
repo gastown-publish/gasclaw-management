@@ -34,7 +34,7 @@
       "bot_username": "gasclaw_mgmt_bot",
       "label": "management",
       "description": "Management / infra bot; token configured 2026-03-25.",
-      "optional": false
+      "optional": true
     }
   ]
 }

@@ -12,3 +12,5 @@ no-db: true
 
 # Default actor for audit trails
 # actor: ""
+dolt:
+  port: 42583

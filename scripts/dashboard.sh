@@ -45,6 +45,7 @@ CPU_CORES=$(nproc)
 LOAD_AVG=$(cat /proc/loadavg | awk '{print $1","$2","$3}')
 NET_IFS=$(ls /sys/class/net | wc -l)
 PROCS=$(cat /proc/loadavg | awk '{print $4}' | cut -d'/' -f1)
+DISK_PARTS=$(lsblk -d -n 2>/dev/null | wc -l || echo "N/A")
 TZ=$(cat /etc/timezone 2>/dev/null || date +%Z)
 [ -z "$UPTIME" ] && UPTIME="unknown"
 
@@ -75,7 +76,7 @@ cat <<EOF
 </head>
 <body>
     <h1>🚀 Gasclaw <small>v$VERSION</small></h1>
-    <p><small>$(hostname) | $GIT_COMMITS commits | $CPU_CORES cores | load: $LOAD_AVG | $NET_IFS net ifs | $PROCS procs | $TZ</small></p>
+    <p><small>$(hostname) | $GIT_COMMITS commits | $CPU_CORES cores | load: $LOAD_AVG | $NET_IFS net ifs | $PROCS procs | $TZ | $DISK_PARTS disks</small></p>
     <div class="card" style="background: #22c55e; color: #000; animation: pulse 2s infinite;">
         <div class="metric">✓ All Systems Operational<br><small>$(date '+%H:%M:%S')</small></div>
     </div>

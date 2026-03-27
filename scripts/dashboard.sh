@@ -14,6 +14,9 @@ if [ -f "$METRICS_FILE" ]; then
     MEM_TOTAL=$(grep total_mb "$METRICS_FILE" | head -1 | sed 's/.*: *\([0-9]*\).*/\1/')
     MEM_PERC=$((MEM_USED * 100 / MEM_TOTAL))
     MEM_AVAIL=$(grep MemAvailable /proc/meminfo | awk '{print int($2/1024/1024)}')
+    SWAP_TOTAL=$(grep SwapTotal /proc/meminfo | awk '{print int($2/1024)}')
+    SWAP_FREE=$(grep SwapFree /proc/meminfo | awk '{print int($2/1024)}')
+    SWAP_USED=$((SWAP_TOTAL - SWAP_FREE))
     COMMITS_AHEAD=$(grep commits_ahead "$METRICS_FILE" | sed 's/.*: *\([0-9]*\).*/\1/')
 else
     DISK_AVAIL="N/A"
@@ -98,6 +101,10 @@ cat <<EOF
     <div class="card">
         <h2>Memory</h2>
         <div class="metric">${MEM_PERC}% used (${MEM_USED}MB / ${MEM_TOTAL}MB) | ${MEM_AVAIL}GB avail</div>
+    </div>
+    <div class="card">
+        <h2>Swap</h2>
+        <div class="metric">${SWAP_USED}MB used / ${SWAP_TOTAL}MB total</div>
     </div>
     <div class="card">
         <h2>Git</h2>

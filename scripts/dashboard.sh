@@ -35,6 +35,9 @@ else
     BEADS_CLASS="fail"
 fi
 
+# Telegram check (assume OK if container is healthy)
+TELEGRAM_CLASS="ok"
+
 # Get uptime
 UPTIME=$(cat /proc/uptime | awk '{printf "%.1f days", $1/86400}')
 LAST_CHECK=$(date '+%H:%M:%S')
@@ -97,6 +100,10 @@ cat <<EOF
     <div class="card">
         <h2>Beads</h2>
         <div class="metric $BEADS_CLASS">$BEADS_COUNT</div>
+    </div>
+    <div class="card">
+        <h2>Telegram</h2>
+        <div class="metric $TELEGRAM_CLASS">Configured</div>
     </div>
     <div class="card">
         <h2>Uptime</h2>

@@ -1,0 +1,48 @@
+---
+description: Use Gastown Context Hub (gashub) via MCP for docs and skills — prefer tools over guessing APIs
+alwaysApply: true
+---
+
+# Context Hub (gastown-publish/context-hub)
+
+This workspace connects **Cursor** to the **Context Hub** MCP server (`context-hub` → `gashub-mcp` from [gastown-publish/context-hub](https://github.com/gastown-publish/context-hub)).
+
+## When to use it
+
+- Before implementing or calling an external **API, SDK, or framework**, search and fetch current docs/skills instead of relying on memory.
+- When the user asks for **accurate** library behavior, parameters, or examples.
+- To **annotate** useful findings for future sessions (`gashub_annotate`) or send **feedback** on doc quality (`gashub_feedback`).
+
+## MCP tools (preferred)
+
+Use the **MCP tools** exposed by the `context-hub` server (names may appear as `gashub_search`, `gashub_get`, `gashub_list`, `gashub_annotate`, `gashub_feedback`):
+
+| Tool | Purpose |
+|------|---------|
+| **search** | Find doc/skill IDs by topic, tags, or language |
+| **get** | Load full content for an ID (e.g. `openai/chat`) |
+| **list** | Browse the catalog |
+| **annotate** | Persist short local notes tied to an entry |
+| **feedback** | Up/down vote entries for maintainers |
+
+Typical flow: **search** (or **list**) → **get** the relevant ID → implement using that text.
+
+## CLI fallback (terminal)
+
+If MCP is unavailable, the same functionality exists as CLI after installing the package from the repo:
+
+```bash
+cd ../context-hub/cli && npm install && gashub search "<query>" && gashub get "<id>" --lang py
+```
+
+See repo [README](https://github.com/gastown-publish/context-hub/blob/main/README.md) and `docs/cli-reference.md`.
+
+## Local / private content
+
+Optional `~/.gashub/config.yaml` can add `path:` sources (e.g. Tailscale-only or local markdown trees). Do not commit secrets.
+
+## Setup note
+
+`.cursor/mcp.json` assumes **context-hub** is cloned next to this repo: `../context-hub/` (sibling of `gasclaw-management`). If your layout differs, update the `args` path or install globally (`npm install -g` from `context-hub/cli`) and set `"command": "gashub-mcp"` instead.
+
+After changing MCP config, **reload Cursor** (or restart) so the server is registered.

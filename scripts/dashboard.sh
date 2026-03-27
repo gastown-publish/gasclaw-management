@@ -67,7 +67,7 @@ cat <<EOF
 </head>
 <body>
     <h1>🚀 Gasclaw <small>v$VERSION</small></h1>
-    <p><small>$(hostname) | $GIT_COMMITS commits</small></p>
+    <p><small>$(hostname) | $GIT_COMMITS commits | $CPU_CORES cores</small></p>
     <div class="card" style="background: #22c55e; color: #000; animation: pulse 2s infinite;">
         <div class="metric">✓ All Systems Operational<br><small>$(date '+%H:%M:%S')</small></div>
     </div>

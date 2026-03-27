@@ -7,7 +7,7 @@ echo "=== Host Health Check ==="
 
 # vLLM
 echo -n "vLLM (8080): "
-if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/v1/models 2>/dev/null | grep -q "200"; then
+if curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:8080/v1/models 2>/dev/null | grep -q "200"; then
     echo "✓ OK"
 else
     echo "✗ FAILED"
@@ -15,7 +15,7 @@ fi
 
 # LiteLLM
 echo -n "LiteLLM (4000): "
-if curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/health 2>/dev/null | grep -q "200"; then
+if curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:4000/health 2>/dev/null | grep -q "200"; then
     echo "✓ OK"
 else
     echo "✗ FAILED"

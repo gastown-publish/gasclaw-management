@@ -18,7 +18,7 @@ echo ""
 
 # Gateway (in container)
 echo -n "Gateway (18798): "
-if curl -s -o /dev/null -w "%{http_code}" http://localhost:18798/health 2>/dev/null | grep -q "200"; then
+if curl -s --max-time 5 -o /dev/null -w "%{http_code}" http://localhost:18798/health 2>/dev/null | grep -q "200"; then
     echo "✓ OK"
 else
     log_fail

@@ -26,7 +26,7 @@ else
 fi
 
 # Get beads status
-BEADS_STATUS=$(bd list 2>&1 | head -1)
+BEADS_STATUS=$(timeout 5 bd list 2>&1 | head -1)
 if echo "$BEADS_STATUS" | grep -q "No issues"; then
     BEADS_COUNT="0 issues"
     BEADS_CLASS="ok"

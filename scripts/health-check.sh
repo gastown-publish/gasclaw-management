@@ -38,7 +38,7 @@ fi
 
 # Beads
 echo -n "Beads: "
-if bd list >/dev/null 2>&1; then
+if timeout 5 bd list >/dev/null 2>&1; then
     echo "✓ OK"
 else
     log_fail

@@ -36,6 +36,16 @@ else
         WEBHOOK_URL="$WEBHOOK_URL" ./scripts/alert-webhook.sh "Git repo inaccessible" warning &
 fi
 
+# Memory plugin
+echo -n "Memory plugin: "
+if openclaw plugins doctor 2>&1 | grep -q "No plugin issues"; then
+    echo "✓ OK"
+else
+    log_fail
+    [ -n "$WEBHOOK_URL" ] && [ "$ALERT_ON_FAIL" = "true" ] && \
+        WEBHOOK_URL="$WEBHOOK_URL" ./scripts/alert-webhook.sh "Memory plugin unhealthy" warning &
+fi
+
 # Beads
 echo -n "Beads: "
 if timeout 5 bd list >/dev/null 2>&1; then

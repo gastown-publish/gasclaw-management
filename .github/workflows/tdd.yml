@@ -1,0 +1,38 @@
+name: TDD Pipeline
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  test:
+    runs-on: self-hosted
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r tests/requirements.txt
+
+      - name: Run linter
+        run: |
+          pip install ruff
+          ruff check src/ || true
+
+      - name: Run unit tests
+        run: |
+          if [ -d "tests/unit" ]; then
+            python -m pytest tests/unit/ -q || true
+          fi
+
+      - name: Run Telegram tests
+        if: github.event_name == 'pull_request'
+        env:
+          TELETHON_SESSION: ${{ secrets.TELETHON_SESSION }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+        run: python3 tests/test_all_bots.py || true

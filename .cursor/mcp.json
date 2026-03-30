@@ -1,8 +1,7 @@
 {
   "mcpServers": {
     "context-hub": {
-      "command": "node",
-      "args": ["${workspaceFolder}/../context-hub/cli/bin/gashub-mcp"]
+      "command": "gashub-mcp"
     }
   }
 }
